@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!-- Primary Meta Tags -->
+    <title>Home</title>
+    <meta name="viewport" content="width=1024, initial-scale=1, shrink-to-fit=no">
+    <meta name="title" content="Compute Lite">
+    <meta name="author" content="SCL">
+    <meta name="description" content="Compute in Browser">
+    <meta name="keywords" content="compute lite, edge compute, edge data, macro in browser, compute in browser, wasm" />
+    <link rel="canonical" href="https://www.ComputeLite.com">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.ComputeLite.com">
+    <meta property="og:title" content="Compute Lite">
+    <meta property="og:description" content="Compute in Browser">
+    <meta property="og:image" content="assets/img/favicon/summence.svg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.ComputeLite.com">
+    <meta property="twitter:title" content="Compute Lite">
+    <meta property="twitter:description" content="Compute in Browser">
+    <meta property="twitter:image" content="assets/img/favicon/summence.svg">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="120x120" href="./favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32"
+    href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16"
+    href="favicon.ico">
+    <link rel="mask-icon" href="./favicon.ico" color="#ffffff">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="stylesheet" href="./page_assets/home-page/css/style.css">
+</head>
+<body class="bg-background text-foreground min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-card border-b border-border shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Brand -->
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 flex items-center">
+                            <span class="inline-block bg-primary rounded-full p-2 shadow-sm mr-3">
+                                <svg class="h-6 w-6 text-primary-foreground" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M3 7v4a9 9 0 009 9 9 9 0 009-9V7"></path>
+                                    <path d="M21 7c0-1.657-1.343-3-3-3H6C4.343 4 3 5.343 3 7"></path>
+                                </svg>
+                            </span>
+                            <h1 class="text-xl font-bold text-card-foreground">ComputeLite</h1>
+                        </div>
+                    </div>
+     
+                     <!-- Desktop Navigation -->
+                    <div id="data-loader" class="center" style="display:none;"></div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-2">
+                            <!-- Model Dropdown -->
+                            <div class="relative">
+                                <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center cursor-pointer" id="models-menu-button">
+                                    Models
+                                    <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="absolute left-0 mt-2 w-48 bg-card border border-border rounded-md shadow-lg z-50 hidden" id="dashboard-dropdown">
+                                    <div class="py-1">
+                                        <ul class="list-style-none">
+                                            <li id="addNew"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Add New Model</a></li>
+                                            <li id="addExisting"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Add Existing Model</a></li>
+                                            <li id="removeModel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Hide Model</a></li>
+                                            <li id="saveAs"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Save As</a></li>
+                                            <li id="uploadModel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Restore Model</a></li>
+                                            <li id="downloadModel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Backup Model</a></li>
+                                            <li id="deleteModel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Delete Model</a></li>
+                                            <li id="uploadExcel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Upload Excel</a></li>
+                                            <li id="downloadExcel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Download Excel</a></li>
+                                            <li id="vacuum"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Vacuum Model</a></li>
+                                            <li id="model-createView"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Create View</a>                                    
+                                            <li id="editorBtn"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">SQL Editor</a>
+                                            <li id="uploadPackage"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Upload Package</a></li>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Files Dropdown -->
+                            <div class="relative">
+                                <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center cursor-pointer" id="files-menu-button">
+                                    Files
+                                    <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="absolute left-0 mt-2 w-48 bg-card border border-border rounded-md shadow-lg z-50 hidden" id="files-dropdown">
+                                    <div class="py-1">
+                                        <ul class="list-style-none">
+                                            <li id="uploadFiles"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Upload Files</a></li>
+                                            <li id="availInpFiles"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Input Files</a></li>
+                                            <li id="availOutFiles"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Output Files</a></li>
+                                        </ul>   
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Runs Dropdown -->
+                            <div class="relative">
+                                <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center cursor-pointer" id="run-menu-button">
+                                    RUN
+                                    <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="absolute py-2 left-0 mt-2 w-64 bg-card border border-border rounded-md shadow-lg z-50 hidden" id="runs-dropdown">
+                                    <div class="py-1">
+                                        <ul id="taskDiv" class="list-style-none">
+                                            <li><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors">main.py</a></li>
+                                        </ul>   
+                                    </div>
+                                    <div class="pe-3">                                
+                                        <button id="addScriptBtn" type="button" class="btn btn-primary btn-sm float-end">Add</button>                                
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Notebooks Dropdown -->
+                            <div class="relative">
+                                <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center cursor-pointer" id="notebook-menu-button">
+                                    Notebooks
+                                    <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="absolute left-0 mt-2 w-48 bg-card border border-border rounded-md shadow-lg z-50 hidden" id="notebook-dropdown">
+                                    <div class="py-1">
+                                        <ul class="list-style-none">
+                                            <li id="notebookJS"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Javascript Notebook</a></li>
+                                            <li id="pyNotebook"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Python Notebook</a></li>
+                                            <li id="notebookRBtn"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">R Notebook</a></li>
+                                        </ul>   
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                     </div>
+
+                <!-- User Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <div class="flex items-center space-x-3">
+                            <!-- Query Sheet -->
+                            <a id="querySheet" title="Query Sheet" class="p-2.5 rounded-full bg-primary cursor-pointer hidden">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-5 h-5">
+                                    <path fill="white" d="M0 448c0 35.3 28.7 64 64 64h160V384c0-17.7 14.3-32 32-32h128V64c0-35.3-28.7-64-64-64H64C28.7 0 0 28.7 0 64v384zM171.3 75.3l-96 96c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l96-96c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6zm96 32l-160 160c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l160-160c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6zM384 384H256v128l128-128z"/></svg>
+                            </a>
+
+                            <!-- SQL Editor -->
+                            <a id="sqlEditor" title="SQL Editor" class="p-2.5 rounded-full bg-primary cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" class="w-5 h-5">
+                                    <g fill="white"><path d="M1.333 2.667C1.333 1.194 4.318 0 8 0s6.667 1.194 6.667 2.667V4c0 1.473-2.985 2.667-6.667 2.667S1.333 5.473 1.333 4z"/><path d="M1.333 6.334v3C1.333 10.805 4.318 12 8 12s6.667-1.194 6.667-2.667V6.334a6.5 6.5 0 0 1-1.458.79C11.81 7.684 9.967 8 8 8s-3.809-.317-5.208-.876a6.5 6.5 0 0 1-1.458-.79z"/><path d="M14.667 11.668a6.5 6.5 0 0 1-1.458.789c-1.4.56-3.242.876-5.21.876c-1.966 0-3.809-.316-5.208-.876a6.5 6.5 0 0 1-1.458-.79v1.666C1.333 14.806 4.318 16 8 16s6.667-1.194 6.667-2.667z"/>
+                                    </g>
+                                </svg>
+                            </a>
+
+                            <!-- JavaScript Notebook -->
+                            <!-- <a id="notebookJS" title="JavaScript Notebook" class="p-2.5 rounded-full bg-primary cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-5 h-5">
+                                    <path fill="white" d="M32 32v448h448V32Zm240 348c0 43.61-25.76 64.87-63.05 64.87c-33.68 0-53.23-17.44-63.15-38.49l34.28-20.75c6.61 11.73 11.63 21.65 26.06 21.65c12 0 21.86-5.41 21.86-26.46V240h44Zm99.35 63.87c-39.09 0-64.35-17.64-76.68-42L329 382c9 14.74 20.75 24.56 41.5 24.56c17.44 0 27.57-7.72 27.57-19.75c0-14.43-10.43-19.54-29.68-28l-10.52-4.52c-30.38-12.92-50.52-29.16-50.52-63.45c0-31.57 24.05-54.63 61.64-54.63c26.77 0 46 8.32 59.85 32.68L396 290c-7.22-12.93-15-18-27.06-18c-12.33 0-20.15 7.82-20.15 18c0 12.63 7.82 17.74 25.86 25.56l10.52 4.51c35.79 15.34 55.94 31 55.94 66.16c.01 37.9-29.76 57.64-69.76 57.64"/>
+                                </svg>
+                            </a> -->
+
+                            <!-- Python Notebook -->
+                            <!-- <a id="notebookBtn" title="Python Notebook" class="p-2.5 rounded-full bg-primary cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 32 32">
+                                    <path fill="white" d="M23.488 9.14v2.966a4.284 4.284 0 0 1-4.173 4.236h-6.672a3.41 3.41 0 0 0-3.34 3.394v6.36c0 1.81 1.574 2.876 3.34 3.395a11.2 11.2 0 0 0 6.672 0c1.682-.487 3.34-1.467 3.34-3.394V23.55h-6.672v-.849h10.012c1.941 0 2.665-1.354 3.34-3.386a11.46 11.46 0 0 0 0-6.79c-.48-1.932-1.396-3.386-3.34-3.386Zm-3.752 16.108a1.273 1.273 0 1 1-1.254 1.269a1.26 1.26 0 0 1 1.254-1.27"/>
+                                    <path fill="white" d="M15.835 2a19 19 0 0 0-3.192.273c-2.827.499-3.34 1.544-3.34 3.472V8.29h6.68v.849H6.796a4.17 4.17 0 0 0-4.173 3.387a12.5 12.5 0 0 0 0 6.789c.475 1.977 1.609 3.386 3.55 3.386H8.47V19.65a4.245 4.245 0 0 1 4.173-4.15h6.672a3.365 3.365 0 0 0 3.34-3.394V5.745a3.73 3.73 0 0 0-3.34-3.472A21 21 0 0 0 15.835 2m-3.612 2.048a1.273 1.273 0 1 1-1.254 1.277a1.27 1.27 0 0 1 1.254-1.277"/>
+                                </svg>
+                            </a> -->
+
+                           <!-- R Notebook -->
+                            <!-- <a id="notebookRBtn" title="R Notebook" class="p-2.5 rounded-full bg-primary flex items-center justify-center cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24">
+                                    <text x="12" y="14" font-size="24" fill="white" font-family="monospace"
+                                        text-anchor="middle" dominant-baseline="middle">R</text>
+                                </svg>
+                            </a> -->
+
+
+                            <!-- Python Editor -->
+                            <a id="shareBtn" title="Python Editor" class="p-2.5 rounded-full bg-primary cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-5 h-5">
+                                    <path fill="white" d="M64 464c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16h160v80c0 17.7 14.3 32 32 32h80v288c0 8.8-7.2 16-16 16zM64 0C28.7 0 0 28.7 0 64v384c0 35.3 28.7 64 64 64h256c35.3 0 64-28.7 64-64V154.5c0-17-6.7-33.3-18.7-45.3l-90.6-90.5C262.7 6.7 246.5 0 229.5 0zm97 289c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L79 303c-9.4 9.4-9.4 24.6 0 33.9l48 48c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-31-31l31-31zm96-34c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l31 31l-31 31c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l48-48c9.4-9.4 9.4-24.6 0-33.9l-48-48z"/>
+                                </svg>
+                            </a>
+
+                            <!-- Documentation -->
+                            <a href="https://docs.computelite.com" target="_blank" title="Documentation" class="p-2.5 rounded-full bg-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-5 h-5">
+                                    <path fill="white" d="M96 0C43 0 0 43 0 96v320c0 53 43 96 96 96h320c17.7 0 32-14.3 32-32s-14.3-32-32-32v-64c17.7 0 32-14.3 32-32V32c0-17.7-14.3-32-32-32H96zm0 384h256v64H96c-17.7 0-32-14.3-32-32s14.3-32 32-32zm32-240c0-8.8 7.2-16 16-16h192c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16zm16 48h192c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button class="bg-card text-card-foreground inline-flex items-center justify-center p-2 rounded-md hover:bg-muted hover:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary" id="mobile-menu-button">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="block h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-border">
+                <!-- Mobile Dashboard Dropdown -->
+                <div class="space-y-1">
+                    <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-base font-medium w-full text-left flex items-center justify-between" id="mobile-dashboard-button">
+                        Dashboard
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="hidden pl-4 space-y-1" id="mobile-dashboard-dropdown">
+                        <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-sm">Analytics</a>
+                        <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-sm">Overview</a>
+                        <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-sm">Performance</a>
+                        <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-sm">KPIs</a>
+                    </div>
+                </div>
+                <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-base font-medium">Inventory</a>
+                <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-base font-medium">Orders</a>
+                <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-base font-medium">Suppliers</a>
+                <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-base font-medium">Reports</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 mb-4">
+        <div class="py-12">
+            <div class="container mx-auto">
+                <!-- Responsive grid: stack on mobile, 3-column on md+ -->
+                <div class="grid grid-cols-11 gap-6">
+                    
+                    <!-- Left Card: Models -->
+                    <div id="modelList" class="col-span-12 md:col-span-3 bg-card border border-border rounded-md p-6 flex flex-col h-full">
+                    <h2 class="text-lg font-semibold text-card-foreground mb-4 text-center">Models</h2>
+                    <div class="space-y-2 flex-1 overflow-y-auto">
+                        <ul id="availableModal"></ul>
+                    </div>
+                    </div>
+                    
+                    <!-- Center Card: Progress + Output -->
+                    <div class="col-span-12 md:col-span-5 flex flex-col gap-4 px-4">
+                    
+                        <!-- First Progress Div -->
+                        <div id="dl_progress_div" class="bg-white shadow-md rounded-lg p-4 hidden">
+                            <h6 class="text-gray-700 text-sm font-medium mb-2">
+                            Please wait, as a process is running in the background.
+                            </h6>
+                            <div class="relative w-full h-4 bg-gray-200 rounded overflow-hidden">
+                                <div class="absolute left-0 top-0 h-4 w-2/5 bg-gray-500 animate-stripes"></div>
+                            </div>
+                            <span class="text-xs text-gray-600 text-center">Running</span>
+                        </div>
+
+                        <!-- Second Progress Div -->
+                        <div id="dl_progress_div1" class="bg-white shadow-md rounded-lg p-4 hidden">
+                            <h6 class="text-gray-700 text-sm font-medium mb-2">
+                            Please wait, while Refresh Levels process running in the background.
+                            </h6>
+                            <div class="relative w-full h-4 bg-gray-200 rounded overflow-hidden">
+                            <div class="absolute left-0 top-0 h-4 w-2/5 bg-green-500 animate-stripes"></div>
+                            </div>
+                            <span class="text-xs text-gray-600">Running</span>
+                        </div>
+
+                        <!-- Output Div -->
+                        <div id="outputDiv" class="lower-sidebar hidden bg-primary">
+                            <div class="outputWrapper">
+                            <button id="closeOutput" class="top-right-button btn-icon-outline">
+                                <span class="fa-solid fa-xmark"></span>
+                            </button>
+                            <!-- Loader Overlay -->
+                            <div id="loadingOverlay" class="loading-overlay hidden">
+                                <div class="three-dots-loader">
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                </div>
+                            </div>
+                            <!-- Output Text -->
+                            <div id="outputTxt" class="overflow-x-hidden px-4 pt-3 text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Card: Tables -->
+                    <div id="tableList" class="col-span-12 md:col-span-3 bg-card border border-border rounded-md p-6 flex flex-col h-full">
+                        <h2 class="text-lg font-semibold text-card-foreground mb-4 text-center">Tables</h2>
+                        <div id="tableGroup" class="space-y-0 flex-1 overflow-y-auto"></div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    
+    <!-- SCC Modal -->
+    <div id="scc-one-modal"
+        class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b px-4 py-2">
+                <h2 class="text-lg font-semibold"></h2>
+                <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer" id="modal-close">
+                    ✕
+                </button>
+            </div>
+            <!-- Body -->
+            <div class="p-4 modal-body"></div>
+            <!-- Footer -->
+            <div class="flex justify-end gap-2 border-t px-4 py-2 modal-footer"></div>
+        </div>
+    </div>
+
+    <!-- Upload Excel Info Modal -->
+    <div id="modal-uploadExcel-info" class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+            <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg relative z-10">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b px-4 py-2">
+                <h2 class="text-lg font-semibold">Select Worksheets</h2>
+                <button type="button"
+                        class="text-gray-500 hover:text-gray-700 cursor-pointer"
+                        onclick="document.getElementById('modal-uploadExcel-info').classList.add('hidden')">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body p-4">
+                <!-- Worksheets list will go here -->
+            </div>
+
+            <!-- Footer -->
+            <div class="flex justify-end gap-2 border-t px-4 py-2 modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        onclick="document.getElementById('modal-uploadExcel-info').classList.add('hidden')">
+                Cancel
+                </button>
+                <button id="saveFileName" type="button"
+                        class="btn-primary ml-auto">
+                Upload
+                </button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="createView-modal" class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+            <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg relative z-10">
+            
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center border-b px-4 py-2">
+                    <h2 class="text-lg font-semibold">Create View</h2>
+                    <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer" 
+                        onclick="document.getElementById('createView-modal').classList.add('hidden')">
+                    ✕
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="modal-body p-4">
+                    
+                    <!-- View Name -->
+                    <div class="grid grid-cols-5 items-center gap-4 mb-4">
+                        <label for="viewName" class="col-span-2 text-base font-semibold">View Name</label>
+                        <div class="col-span-3">
+                            <input type="text" id="viewName" class="input input-bordered w-full" />
+                        </div>
+                    </div>
+                    
+                    <!-- Query -->
+                    <div class="grid grid-cols-5 gap-4">
+                        <label for="query-input" class="col-span-2 text-base font-semibold">Query</label>
+                        <div class="col-span-3">
+                            <textarea id="query-input" class="textarea textarea-bordered w-full" rows="5"></textarea>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+                <!-- Modal Footer -->
+                <div class="flex justify-between border-t px-4 py-3">
+                    <button id="cancel-view" type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('createView-modal').classList.add('hidden')">Cancel</button>
+                    <button id="ok-view" type="button" class="btn btn-primary">Ok</button>
+                </div>
+            
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-upload-files" class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+            <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg relative z-10">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center border-b px-4 py-2">
+                    <h2 class="text-lg font-semibold">Upload Files</h2>
+                    <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer" 
+                        onclick="document.getElementById('modal-upload-files').classList.add('hidden')">
+                    ✕
+                    </button>
+                </div>
+                
+                <div class="modal-body p-2">
+                    <div class="container">
+                        <div class="input-group">
+                            <input id="inpFiles" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 p-2.5" type="file" multiple>
+                        </div>
+                    </div>                    
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-between border-t px-4 py-3">
+                    <button id="cancel-view" type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('modal-upload-files').classList.add('hidden')">Cancel</button>
+                    <button id="saveFiles" type="button" class="btn btn-primary">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-input-files" class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+            <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg relative z-10">
+                <div class="flex justify-between items-center border-b px-4 py-2">
+                    <h2 class="text-lg font-semibold">Input Files</h2>
+                    <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer" 
+                        onclick="document.getElementById('modal-input-files').classList.add('hidden')">
+                    ✕
+                    </button>
+                </div>
+                
+                <div class="modal-body p-2">
+                    
+                    
+                </div>
+                <!-- Modal Footer -->
+                <div class="flex justify-between border-t px-4 py-3">
+                    <button id="cancel-view" type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('modal-input-files').classList.add('hidden')">Cancel</button>
+                    <button id="downloadAllFiles" type="button" class="btn btn-primary">Download All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-addScript" class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+            <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg relative z-10">
+                <div class="flex justify-between items-center border-b px-4 py-2">
+                    <h2 class="text-lg font-semibold">Add New Script</h2>
+                    <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer" 
+                        onclick="document.getElementById('modal-addScript').classList.add('hidden')">
+                    ✕
+                    </button>
+                </div>
+                <div class="modal-body p-6">
+                    <div class="space-y-4">
+                        <!-- Display Name -->
+                        <div>
+                            <label for="dsName" class="label mb-1">
+                                Display Name
+                            </label>
+                            <input type="text" id="dsName" placeholder="Enter Display Name" class="input w-full"
+                            />
+                        </div>
+
+                        <!-- Script Type -->
+                        <div>
+                            <label for="scType" class="label mb-1">
+                                Script Type
+                            </label>
+                            <select id="scType" class="select w-full">
+                                <option value="0" selected>Select a Type</option>
+                                <option value="Javascript">JS Notebook</option>
+                                <option value="Python">Python Notebook</option>
+                                <option value="R">R Notebook</option>
+                                <option value="PScript">Python Script</option>
+                            </select>
+                        </div>
+
+                        <!-- Script Name -->
+                        <div>
+                            <label for="scName" class="label">
+                                Script Name
+                            </label>
+                            <select id="scName" class="select w-full">
+                                <option value="0" selected>Select a Name</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between border-t px-4 py-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="document.getElementById('modal-addScript').classList.add('hidden')">Cancel</button>
+                    <button id="ok-script" type="button" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-updateScript" class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+            <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg relative z-10">
+                <div class="flex justify-between items-center border-b px-4 py-2">
+                    <h2 class="text-lg font-semibold">Update Script</h2>
+                    <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer" 
+                        onclick="document.getElementById('modal-updateScript').classList.add('hidden')">
+                    ✕
+                    </button>
+                </div>
+                <div class="modal-body p-6">
+                    <div class="space-y-4">
+                        <!-- Display Name -->
+                        <div>
+                            <label for="upDsName" class="label mb-1">
+                                Display Name
+                            </label>
+                            <input type="text" id="upDsName" placeholder="Enter Display Name" class="input w-full"
+                            />
+                        </div>
+
+                        <!-- Script Type -->
+                        <div>
+                            <label for="upScType" class="label mb-1">
+                                Script Type
+                            </label>
+                            <select id="upScType" class="select w-full">
+                                <option value="0" selected>Select a Type</option>
+                                <option value="Javascript">JS Notebook</option>
+                                <option value="Python">Python Notebook</option>
+                                <option value="R">R Notebook</option>
+                                <option value="PScript">Python Script</option>
+                            </select>
+                        </div>
+
+                        <!-- Script Name -->
+                        <div>
+                            <label for="upScName" class="label">
+                                Script Name
+                            </label>
+                            <select id="upScName" class="select w-full">
+                                <option value="0" selected>Select a Name</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between border-t px-4 py-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="document.getElementById('modal-updateScript').classList.add('hidden')">Cancel</button>
+                    <button id="update-script" type="button" class="btn btn-primary">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modal-show-output" 
+        class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+        <!-- Modal Dialog -->
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center border-b px-4 py-2">
+                <h2 class="text-lg font-semibold">Output</h2>
+                <button type="button" 
+                        class="text-gray-500 hover:text-gray-700 cursor-pointer" 
+                        onclick="document.getElementById('modal-show-output').classList.add('hidden')">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div id="currCell" class="flex-1 overflow-auto p-4">
+                <div class="cell-bottom"></div>
+                <canvas id="myCanvas" class="w-full h-full"></canvas>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex justify-between border-t px-4 py-3">
+                <button type="button" 
+                        class="btn btn-secondary"
+                        onclick="document.getElementById('modal-show-output').classList.add('hidden')">
+                    Cancel
+                </button>
+                <button id="downloadOutput" type="button" class="btn btn-primary">
+                    Download
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Footer Section -->
+    <footer class="bg-primary text-white pt-3 pb-0">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col items-center">
+            <!-- Logo -->
+            <a href="./" class="flex justify-center">
+                <img src="assets/img/favicon/summence_bw.png" alt="SCC Logo" class="h-9 mb-3">
+            </a>
+
+            <!-- Text -->
+            <div class="flex justify-center items-center text-center">
+                <p class="text-sm font-normal mb-0">Compute Lite</p>
+            </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./page_assets/home-page/js/script.js" type="module"></script>
+</body>
+</html>

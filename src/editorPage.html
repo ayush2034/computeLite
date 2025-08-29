@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <!-- Primary Meta Tags -->
+  <title>Editor</title>
+  <meta name="viewport" content="width=1024, initial-scale=1, shrink-to-fit=no">
+  <meta name="title" content="Compute Lite">
+  <meta name="author" content="Compute Lite">
+  <meta name="description" content="Compute in Browser">
+  <meta name="keywords" content="compute lite, edge compute, edge data, python in browser, macro in browser, compute in browser, wasm" />
+  <link rel="canonical" href="https://www.ComputeLite.com">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.ComputeLite.com">
+  <meta property="og:title" content="Compute Lite">
+  <meta property="og:description" content="Compute in Browser">
+  <meta property="og:image" content="assets/img/favicon/summence.svg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://www.ComputeLite.com">
+  <meta property="twitter:title" content="Compute Lite">
+  <meta property="twitter:description" content="Compute in Browser">
+  <meta property="twitter:image" content="assets/img/favicon/summence.svg">
+
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="120x120" href="./favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon.ico">
+  <link rel="mask-icon" href="./favicon.ico" color="#ffffff">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="theme-color" content="#ffffff">
+
+
+    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="stylesheet" href="./page_assets/editor/css/style.css">
+  <!-- NOTICE: You can use the _analytics.html partial to include production code specific code & trackers -->
+
+</head>
+
+<body>
+    <div id="loadingPackage" class="loading-packages">
+        <div class="three-dots-loader">
+        <div class="dot bg"></div>
+        <div class="dot bg"></div>
+        <div class="dot bg"></div>
+        </div>
+    </div>
+    <nav class="flex items-center justify-between bg-primary-900 px-4 md:hidden w-full">
+        <a href="#" class="flex items-center">
+            <!-- Dark logo -->
+            <img src="./assets/img/favicon/summence_bw.png" alt="SCC logo" class="hidden dark:block h-8 w-auto" />
+            <!-- Light logo -->
+            <img src="./assets/img/favicon/summence_bw.png" alt="SCC logo" class="block dark:hidden h-8 w-auto" />
+        </a>
+        <div class="flex items-center">
+            <!-- Place right-side nav items here -->
+        </div>
+    </nav>
+
+
+    <main class="block content bg-primary-foreground overflow-hidden min-h-screen">
+        <div>
+            <div class="flex flex-wrap -mx-2">
+                <div class="w-3/12 bg-secondary">
+                    <div id="packageIndicator" class="spinner-loading" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="left-sidebar md:block">
+                        <div class="float-end">
+                            <span id="upload_zip" title="Upload Zip" class="fa-solid fa-file-arrow-up pe-2 cursor-pointer"></span>
+                            <span title="Download Zip" class="fa-solid fa-file-arrow-down pe-2 cursor-pointer" id="downloadZip" role="button"></span>
+                            <span title="Add Folder" id="addFolder" class="fa-solid fa-folder-plus pe-2 cursor-pointer" role="button"></span>
+                            <span title="Add File" id="addFile" class="fa-solid fa-file-circle-plus pe-2 cursor-pointer" role="button"></span>
+                            <span title="Delete File" id="deleteFile" class="fa fa-trash pe-2 cursor-pointer" role="button"></span>
+                        </div>
+                        <div class="sidebar-inner py-4">
+                            <div id="filesDiv" class="px-2">
+                        </div>
+                            <div class="file-explorer">
+                                <ul class="file-list" id="fileList">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="mainDiv" class="flex flex-col transition-all duration-500 overflow-auto flex-1">
+                    <div class="upper-sidebar md:block">
+                        <div class="sidebar-inner overflow-x-hidden relative">
+                            <div id="loadingOverlay" class="loading-overlay hidden">
+                                <div class="three-dots-loader">
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                </div>
+                            </div>
+                            <div id="bottomButtons">
+                                <span id="getText" class="fa-solid fa-play bottom-run-button cursor-pointer" title="Run" role="button"></span>
+                                <!-- <span id="addToHome" class="fas fa-house bottom-home-button" title="Add To Homepage"></span> -->
+                            </div>
+                            <textarea name="any" id="editorText">
+
+                            </textarea>
+
+                        </div>
+                    </div>
+                    <div class="lower-sidebar md:block" data-bs-simplebar style="z-index: 10;">
+                        <div id="outputTxt" class="sidebar-inner px-4 pt-3" style="overflow: auto;color: #eeecec;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="canvasDiv" class="sidebar">
+                <div id="sidebarMenu1" class="right-sidebar md:block" data-bs-simplebar>
+                <div class="sidebar-inner absolute">
+                    <div class="preview-pane">
+                        <span id="hideCanvas" class="fa-solid fa-right-to-bracket hide-canvas-button cursor-pointer" title="Hide Output"></span>
+                        <span id="downloadOutput" class="fa-solid fa-download download-canvas-button cursor-pointer" title="Download Output"></span>
+                        <canvas id="myCanvas" height="400" width="550" style="border:1px solid #000000;">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+     <div id="modal-file-upload" class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+            <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg relative z-10">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center border-b px-4 py-2">
+                    <h2 class="text-lg font-semibold">Upload Zip File</h2>
+                    <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer" 
+                        onclick="document.getElementById('modal-file-upload').classList.add('hidden')">
+                    ✕
+                    </button>
+                </div>
+                
+                <div class="modal-body p-2">
+                    <div class="container">
+                        <div class="input-group">
+                            <input id="inpFiles" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 p-2.5" type="file" multiple>
+                        </div>
+                    </div>                    
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-between border-t px-4 py-3">
+                    <button id="cancel-view" type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('modal-file-upload').classList.add('hidden')">Cancel</button>
+                    <button id="uploadZip" type="button" class="btn btn-primary">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div id="modal-fileDisplayName" class="fixed inset-0 hidden items-center justify-center bg-primary/50 z-50">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-lg">
+                <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg relative z-10">
+                    <div class="flex justify-between items-center border-b px-4 py-2">
+                        <h2 class="text-lg font-semibold">Add to Homepage</h2>
+                        <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer" 
+                            onclick="document.getElementById('modal-fileDisplayName').classList.add('hidden')">
+                        ✕
+                        </button>
+                    </div>
+                    <div class="container">
+                        <div class="modal-body p-2">
+                            <div class="row row-header align-items-center my-4">
+                            <div class="col-4 align-self-center">
+                                <label class="my-2">
+                                <h6>Function Name</h6>
+                                </label>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" class="form-control" id="fileName">
+                            </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="flex justify-between border-t px-4 py-3">
+                        <button id="cancel-view" type="button" class="btn btn-secondary"
+                        onclick="document.getElementById('modal-fileDisplayName').classList.add('hidden')">Cancel</button>
+                        <button id="saveFileName" type="button" class="btn btn-primary">Upload</button>
+                    </div>
+            </div>
+        </div>
+    </div> -->
+  <script src="./coi-serviceworker.js"></script>
+  <script type="module" src="./page_assets/editor/js/script.js"></script>
+  <script type="module" src="./assets/js/pixel.js"></script>
+
+</body>
+
+</html>

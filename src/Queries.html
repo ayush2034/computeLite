@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!-- Primary Meta Tags -->
+    <title>Compute Lite Queries</title>
+    <meta name="viewport" content="width=1024, initial-scale=1, shrink-to-fit=no">
+    <meta name="title" content="Compute Lite">
+    <meta name="author" content="SCL">
+    <meta name="description" content="Compute in Browser">
+    <meta name="keywords" content="compute lite, edge compute, edge data, macro in browser, compute in browser, wasm" />
+    <link rel="canonical" href="https://www.ComputeLite.com">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.ComputeLite.com">
+    <meta property="og:title" content="Compute Lite">
+    <meta property="og:description" content="Compute in Browser">
+    <meta property="og:image" content="assets/img/favicon/summence.svg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.ComputeLite.com">
+    <meta property="twitter:title" content="Compute Lite">
+    <meta property="twitter:description" content="Compute in Browser">
+    <meta property="twitter:image" content="assets/img/favicon/summence.svg">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="120x120" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon.ico">
+    <link rel="mask-icon" href="favicon.ico" color="#ffffff">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link type="text/css" href="./page_assets/privacy-policy/css/style.css" rel="stylesheet">
+    <link type="text/css" href="./page_assets/queries/css/style.css" rel="stylesheet">
+    <link type="text/css" href="./page_assets/queries/css/page_css.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <nav class="w-full bg-primary px-4 flex items-center justify-between md:hidden">
+        <!-- Brand -->
+        <a href="#" class="flex items-center">
+            <img src="assets/img/favicon/summence.svg" alt="Summence logo" class="h-8 dark:hidden" />
+            <img src="assets/img/favicon/summence.svg" alt="Summence logo" class="h-8 hidden dark:block" />
+        </a>
+
+        <!-- Toggler -->
+        <div class="flex items-center">
+            <button 
+            class="p-2 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white"
+            aria-controls="sidebarMenuQue"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+            >
+            <!-- Hamburger icon -->
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            </button>
+        </div>
+    </nav>
+
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebarMenuQue" class="sidebar contracted hidden md:block bg-primary text-white z-40" data-simplebar>
+        <div class="sidebar-inner px-4 pt-3">
+            <div class="flex md:hidden items-center justify-between pb-4">
+                <div class="md:hidden">
+                    <button class="fas fa-times" aria-controls="sidebarMenuQue" aria-expanded="true" aria-label="Toggle sidebar"></button>
+                </div>
+            </div>
+            <ul class="flex flex-col pt-3 md:pt-0" id="sidebar-div" data-accordion="collapse">
+
+                <li class="nav-item">
+                    <a href="/homePage.html" class="nav-link flex items-center">
+                        <span class="sidebar-icon">
+                            <img src="assets/img/favicon/summence.svg" style="opacity: 1;" height="30" width="30" alt="Home page link">
+                        </span>
+                        <span class="mt-1 sidebar-text">Home</span>
+                    </a>
+                </li>
+
+                <li role="separator" class="border-t border-secondary my-3"></li>
+                <li class="nav-item">
+                    <span type="button" class="nav-link collapsed flex justify-between items-center accordion-header cursor-pointer" data-target="groupA">
+                        <span>
+                            <span class="sidebar-icon">
+                                <span class="fas fa-folder"></span>
+                            </span> 
+                            <span class="sidebar-text">File</span>
+                        </span>
+                        <span class="link-arrow">
+                            <span class="fas fa-chevron-right"></span>
+                        </span> 
+                    </span>
+                    <div id="groupA" class="accordion-content hidden px-4 py-3">
+                        <ul class="flex-col nav flex flex-wrap pl-0 ">
+                            <li class="nav-item">
+                                <a class="py-1 nav-link block" href="#"
+                                onclick="document.getElementById('modal-select-column').classList.remove('hidden')">
+                                    <span class="sidebar-text-contracted fas fa-file"></span>
+                                    <span class="sidebar-text">New</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="py-1 nav-link block" id="openModalBtn" href="#">
+                                    <span class="sidebar-text-contracted fas fa-folder-open"></span>
+                                    <span class="sidebar-text">Open</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="py-1 nav-link block" id="editQueryBtn" href="#">
+                                    <span class="sidebar-text-contracted fa-solid fa-pencil"></span>
+                                    <span class="sidebar-text">Edit</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="py-1 nav-link block" id="deleteQueryBtn" href="#">
+                                    <span class="sidebar-text-contracted fas fa-trash-alt"></span>
+                                    <span class="sidebar-text">Delete</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <span class="collapsed nav-link flex justify-between items-center accordion-header cursor-pointer" data-target="groupB">
+                        <span>
+                            <span class="sidebar-icon">
+                                <span class="fas fa-file-alt"></span>
+                            </span> 
+                            <span class="sidebar-text">Queries</span>
+                        </span>
+                        <span class="link-arrow">
+                            <span class="fas fa-chevron-right"></span>
+                        </span> 
+                    </span>
+                    <div id="groupB" class="accordion-content hidden px-4 py-3">
+                        <ul class="flex flex-col gap-2">
+                            <li class="nav-item">
+                                <a class="py-1 nav-link block qr-link" data-bs-toggle="modal" href="#" data-bs-target="#modal-select-column">
+                                    <span class="fas fa-laptop sidebar-text-contracted"></span>
+                                    <span class="sidebar-text">Display</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="py-1 nav-link block qr-link" data-bs-toggle="modal" href="#" data-bs-target="#modal-select-column">
+                                    <span class="fa fa-sum sidebar-text-contracted"></span>
+                                    <span class="sidebar-text">Aggregation</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="py-1 nav-link block qr-link" data-bs-toggle="modal" href="#" data-bs-target="#modal-select-column">
+                                    <span class="fas fa-columns sidebar-text-contracted"></span>
+                                    <span class="sidebar-text">Series</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="py-1 nav-link block qr-link" data-bs-toggle="modal" href="#" data-bs-target="#modal-select-column">
+                                    <span class="fa-solid fa-table sidebar-text-contracted"></span>
+                                    <span class="sidebar-text">Layout</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <main class="min-h-screen bg-gray-100 content">
+        <nav class="flex flex-col top-0 left-0 right-0 z-50 pl-0 pr-2 pb-0 pt-1">
+            <div class="container mx-auto px-0">
+                <div class="flex justify-between w-full" id="navbarSupportedContent">
+                    <div class="flex items-center">
+                        <button id="sidebar-toggle" class="rounded-full p-0 text-[1.3rem] mr-2 hidden md:inline-block cursor-pointer">
+                            <span class="fa-solid fa-bars"></span>
+                        </button>
+                        <button id="refresh_wk" class="rounded-full p-0 text-[1.3rem] mr-3 hidden md:inline-block cursor-pointer">
+                            <span class="fa-solid fa-rotate"></span>
+                        </button>
+                        <div id="zContent" class="" style="display: none;">
+                            <div id="ZLayoutContentDiv" class="flex flex-row justify-start">
+                                <div class="flex justify-start flex-col">
+                                    <div class="mb-4">
+                                        <select class="block w-full rounded border border-gray-300 py-1 px-3 focus:outline-none" id="inlineFormCustomSelectPref" aria-label="Default select example">
+                                            <option selected="selected">Open this select menu</option>
+                                            <option value="1">One</option><option value="2">Two</option>
+                                            <option value="3">Three</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="overflow-x-auto">
+            <div id="table_container" class="w-full mt-2"></div>
+            <div id='contextmenu'></div>
+        </div>
+    </main>
+    <div id="modal-select-column" class="flex fixed hidden inset-0 items-center justify-center bg-primary/50 z-50">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl">
+                <div class="bg-white rounded-2xl shadow-lg w-full relative z-10">
+                    <!-- Modal Header -->
+                    <div class="flex justify-between items-center border-b px-4 py-2">
+                        <h2 id="openedWorksheetTitle" class="text-lg font-semibold">Query Designer</h2>
+                        <button type="button" class="text-gray-500 hover:text-gray-700 cursor-pointer" 
+                            onclick="document.getElementById('modal-select-column').classList.add('hidden')">
+                        ✕
+                        </button>
+                    </div>
+
+                    <div class="p-3">
+                        <div class="container-fluid">
+                            <div class="flex flex-wrap md:flex-row">
+                            <div class="w-full md:w-1/4">
+                                <nav>
+                                <ul id="queryUl" class="nav flex flex-col md:flex-col nav-pills square nav-fill vertical-tab" role="tablist">
+                                    <li class="mb-0">
+                                    <a id="display-new" class="nav-link block p-2 active" data-bs-toggle="tab" href="#DisplayNewC" role="tab">
+                                        <span class="block text-left">
+                                        <span class="fas fa-laptop pe-2"></span>Display
+                                        </span>
+                                    </a>
+                                    </li>
+                                    <li class="mb-0">
+                                    <a id="aggregation-new" class="nav-link block p-2" data-bs-toggle="tab" href="#AggregationNewC" role="tab">
+                                        <span class="block text-left">
+                                        <span class="fas fa-sum pe-2"></span>Aggregation
+                                        </span>
+                                    </a>
+                                    </li>
+                                    <li class="mb-0">
+                                    <a id="series-new" class="nav-link block p-2 rounded-0" data-bs-toggle="tab" href="#SeriesNewC" role="tab">
+                                        <span class="block text-left">
+                                        <span class="fas fa-columns pe-2"></span>Series
+                                        </span>
+                                    </a>
+                                    </li>
+                                    <li class="mb-0">
+                                    <a id="layout-new" class="nav-link block p-2 rounded-0" data-bs-toggle="tab" href="#LayoutNewC" role="tab">
+                                        <span class="block text-left">
+                                        <span class="fas fa-table pe-2"></span>Layout
+                                        </span>
+                                    </a>
+                                    </li>
+                                </ul>
+                                </nav>
+                            </div>
+
+                            <div class="w-full md:w-3/4 border-module-column tab-content">
+                                <div id="DisplayNewC" class="h-full tab-pane fade active show" role="tabpanel">
+                                <div class="flex flex-wrap mb-3">
+                                    <div class="w-full md:w-1/4">
+                                        <label class="lablel-fotmTitle">Name</label>
+                                    </div>
+                                    <div class="w-full md:w-2/3">
+                                    <div class="form-group">
+                                        <input id="queryNm" type="text" name="name" class="input">
+                                    </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap mb-3">
+                                    <div class="w-full md:w-1/4">
+                                    <label class="lablel-fotmTitle">View Table</label>
+                                    </div>
+                                    <div class="w-full md:w-2/3">
+                                    <div class="form-group">
+                                        <select id="tableNm" class="select w-full">
+                                        <option value="">Select Table</option>
+                                        </select>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap mb-3">
+                                    <div class="w-full md:w-1/4">
+                                    <label class="lablel-fotmTitle">Extra</label>
+                                    </div>
+                                    <div class="w-full md:w-5/12">
+                                    <input type="checkbox" id="showSummary" name="module-checkbox" value="show sankey">
+                                    <label for="showSummary" class="text-sm d-inline-block m-bottom">Show
+                                        Summary&nbsp;<i><img src="./page_assets/queries/images/showSummary.svg" width="16" height="16" alt="Summary"></i>
+                                    </label>
+                                    </div>
+                                    <div class="w-full md:w-1/3">
+                                    <input type="checkbox" id="hideNullRows" name="module-checkbox">
+                                    <label for="hideNullRows" class="text-sm d-inline-block m-bottom">Hide Null Rows</label>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div id="AggregationNewC" class="h-full tab-pane fade" role="tabpanel">
+                                <div class="h-full flex flex-row items-stretch justify-between">
+                                    <div class="card border-light" style="flex: 4;">
+                                    <div class="card-header bg-white border-0 text-center py-2">
+                                        <h5 class="m-0">Level</h5>
+                                    </div>
+                                    <div class="flex-grow-1 parent-div scc-box">
+                                        <ul id="selectedLevel" dest="availableLevel" class="tree parent-div w-full h-full mb-0">
+                                        </ul>
+                                    </div>
+                                    </div>
+
+                                    <div class="self-center h-1/4 flex flex-col justify-around" style="flex: 1;">
+                                    <a id="addAllAggregation" class="text-blue-500 text-center">
+                                        <span class="fa fa-angle-double-left"></span>
+                                    </a>
+                                    <a id="removeAllAggregation" class="text-blue-500 text-center">
+                                        <span class="fa fa-angle-double-right"></span>
+                                    </a>
+                                    </div>
+                                    <div class="card border-light" style="flex: 4;">
+                                    <div class="card-header bg-white border-0 text-center py-2">
+                                        <h5 class="m-0">Series</h5>
+                                    </div>
+                                    <div class="flex-grow-1 scc-box">
+                                        <ul id="availableLevel" dest="selectedLevel" class="tree parent-div w-full h-full mb-0">
+                                        </ul>
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+
+                                <div id="LayoutNewC" class="h-full tab-pane fade" role="tabpanel">
+                                <div class="h-full w-full flex flex-col items-stretch justify-between">
+                                    <div class="w-full card border-light rounded-0 flex flex-row items-stretch p-1">
+                                    <div class="page-layout pl-2 pt-2">
+                                        <h6>Page</h6>
+                                    </div>
+                                    <ul id="layoutZ" class="flex-grow-1 h-full p-0 m-0">
+                                    </ul>
+                                    </div>
+
+                                    <div class="w-full card border-light rounded-0 flex flex-row items-stretch flex-grow-1" style="border-top: 0;">
+                                    <div class="p-1" style="flex: 1; border-right: thin solid #dce6f3;">
+                                        <ul id="layoutY" class="verticle_main w-full h-full p-0 m-0"></ul>
+                                    </div>
+                                    <div class="borderFul-row ml-2 p-1" style="flex: 3;">
+                                        <ul id="layoutX" class="w-full h-full p-0 m-0">
+                                        </ul>
+                                    </div>
+                                    </div>
+                                    <div class="w-full card border-light rounded-0 flex flex-row items-stretch">
+                                    <div class="pl-2 pt-2" style="flex: 1;">
+                                        <div class="form-group">
+                                        <label class="lablel-fotmTitle">Display Type</label>
+                                        </div>
+                                    </div>
+                                    <div style="flex: 3;">
+                                        <div class="m-2">
+                                        <select id="graphTypeNew" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                            <option value="TabularData" selected="">Tabular Data</option>
+                                            <option value="CardDisplay">Card Display</option>
+                                            <option value="MapDisplay">Map Display</option>
+                                            <option value="LineChart">Line Chart</option>
+                                            <option value="SankeyChart">Sankey Diagram</option>
+                                            <option value="SunBurst">SunBurst Diagram</option>
+                                            <option value="BarChart">Bar Chart</option>
+                                            <option value="horizontalbar">Horizontal Bar Chart</option>
+                                            <option value="StackedBarChart">Stacked Bar Chart</option>
+                                            <option value="PieChart">Pie Chart</option>
+                                            <option value="donut">Donut Chart</option>
+                                            <option value="gauge">Gauge Chart</option>
+                                            <option value="AreaChart">Area chart</option>
+                                            <option value="StackedAreaChart">Stacked Area chart</option>
+                                            <option value="TreeMap">Tree Map</option>
+                                        </select>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                                <div id="SeriesNewC" class="h-full tab-pane fade" role="tabpanel">
+                                <div class="h-full w-full flex flex-col items-stretch justify-between">
+                                    <div class="container chart-settings">
+                                    <div class="overflow-x-auto">
+                                        <table id="advTable" class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SeriesName</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AggregationFunction</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Format</th>
+                                            </tr>
+                                        </thead>
+                                        </table>
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                </div>
+                <div class="flex justify-between border-t px-4 py-3">
+                    <button id="closingFile1" type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('modal-select-column').classList.add('hidden')">Cancel</button>
+                    <button id="save_qr" type="button" class="btn btn-primary">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="select-querySheet" tabindex="-1" aria-labelledby="modal-select-column"
+        style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="h5 modal-title">Select Queries</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="model-body">
+                    <div class="card border-right m-3">
+                      <div class="card-header bg-white border-0 text-center py-2 px-1 flex">
+                        <h5 class="m-0 flex-grow-1">Available Queries<i type="button" id="search_qr" class="fa fa-search" aria-hidden="true" 
+                        style="padding-left: 15px;font-size: 1rem;"></i>
+                        </h5>
+                        <!-- <i type="button" id="favourite_wk" style="font-size: 1rem" 
+                        class="m-0 pt-1 fa-star far"></i> -->
+                      </div>
+                            <div class="flex-grow-1 scc-box px-2" style="height: 400px;">
+                            <div class="pb-2">
+                            <input id="searchQuery" class="form-control" type="search" 
+                                placeholder="Search Available Queries..." style="display:none;">
+                            </div>
+                                <table class="table table-sm">
+                                    <tbody id="selectQueries-table"></tbody>
+                                </table>
+                            </div>
+
+                        <div style="border-top: thin solid #dce6f3; height: 42px;">
+                            <p class="m-0 py-2 pl-2" id="queryTable"></p>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button class="btn btn-tertiary" type="button" data-bs-dismiss="modal">Cancel</button>
+                  <button id="selectQuery-ok" class="btn btn-primary ml-auto" type="button">Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="./assets/js/pixel.js"></script>  
+    <script src="./coi-serviceworker.js"></script>
+    <script src="./page_assets/queries/js/script.js" type="module"></script>
+    <script src="./page_assets/queries/js/page_js.js" type="module"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        const headers = document.querySelectorAll('.accordion-header');
+        const contents = document.querySelectorAll('.accordion-content');
+
+        headers.forEach(header => {
+            header.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const content = document.getElementById(targetId);
+                const chevron = this.querySelector('span.fa-chevron-right');
+
+                // Close all accordion contents and reset their icons
+                contents.forEach(item => {
+                    if (item.id !== targetId && !item.classList.contains('hidden')) {
+                        item.classList.add('hidden');
+                        const otherHeader = document.querySelector(`.accordion-header[data-target="${item.id}"]`);
+                        const otherChevron = otherHeader.querySelector('span.fa-chevron-right');
+                        otherChevron.style.transform = 'rotate(0deg)';
+                    }
+                });
+
+                // Toggle the clicked accordion's content and rotate its icon
+                content.classList.toggle('hidden');
+                if (content.classList.contains('hidden')) {
+                    chevron.style.transform = 'rotate(0deg)';
+                } else {
+                    chevron.style.transform = 'rotate(90deg)';
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

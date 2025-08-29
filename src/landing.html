@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ComputeLite - In-Browser Serverless Computing</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-background text-foreground font-sans">
+
+  <!-- Navbar -->
+  <header class="border-b border-border">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold text-primary">ComputeLite</h1>
+      <nav class="flex items-center space-x-6 text-sm">
+        <a href="#features" class="hover:text-primary">Features</a>
+        <a href="#how-it-works" class="hover:text-primary">How It Works</a>
+        <a href="#cta" class="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:opacity-90">Try Now</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="py-20 text-center">
+    <div class="max-w-5xl mx-auto px-6">
+      <h2 class="text-4xl font-bold mb-4">Powerful Serverless Computing, Right in Your Browser</h2>
+      <p class="text-muted-foreground text-lg max-w-2xl mx-auto mb-8">
+        ComputeLite uses Pyodide, WebR, Modern JavaScript, and SQLite OPFS to run advanced computations directly in your browser — no servers, no external storage, complete privacy.
+      </p>
+      <a href="#cta" class="bg-primary text-primary-foreground font-medium px-6 py-3 rounded-md hover:opacity-90">
+        Start Computing
+      </a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="py-20 bg-muted/40">
+    <div class="max-w-6xl mx-auto px-6">
+      <h3 class="text-2xl font-bold text-center mb-12">Why Choose ComputeLite?</h3>
+      <div class="grid md:grid-cols-3 gap-6">
+        
+        <div class="border border-border bg-card rounded-lg p-6 shadow-sm hover:shadow-md transition">
+          <h4 class="text-lg font-semibold mb-2">Fully In-Browser</h4>
+          <p class="text-muted-foreground">All computation happens locally using WebAssembly-powered runtimes like Pyodide and WebR.</p>
+        </div>
+
+        <div class="border border-border bg-card rounded-lg p-6 shadow-sm hover:shadow-md transition">
+          <h4 class="text-lg font-semibold mb-2">Enhanced Privacy</h4>
+          <p class="text-muted-foreground">No data ever leaves your browser — no tracking, no cloud storage, complete control.</p>
+        </div>
+
+        <div class="border border-border bg-card rounded-lg p-6 shadow-sm hover:shadow-md transition">
+          <h4 class="text-lg font-semibold mb-2">Edge Computing Speed</h4>
+          <p class="text-muted-foreground">By eliminating network latency, your computations run instantly and efficiently.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="py-20">
+    <div class="max-w-6xl mx-auto px-6">
+      <h3 class="text-2xl font-bold text-center mb-12">How ComputeLite Works</h3>
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <ol class="space-y-4 text-muted-foreground">
+            <li><span class="font-semibold text-foreground">1.</span> Load ComputeLite — no installation needed.</li>
+            <li><span class="font-semibold text-foreground">2.</span> Write and run Python, R, and JavaScript code locally.</li>
+            <li><span class="font-semibold text-foreground">3.</span> Store and query data with SQLite OPFS.</li>
+            <li><span class="font-semibold text-foreground">4.</span> Export results instantly — all without servers.</li>
+          </ol>
+        </div>
+        <div class="border border-border rounded-lg overflow-hidden shadow">
+          <img src="https://dummyimage.com/500x300/ddd/000&text=Browser+Compute+Illustration" alt="How it works">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section id="cta" class="py-20 bg-primary text-primary-foreground text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h3 class="text-3xl font-bold mb-4">Experience In-Browser Computing</h3>
+      <p class="text-lg mb-8">Run Python, R, and SQL directly in your browser — no servers, no installations.</p>
+      <a href="#" class="bg-primary-foreground text-primary px-6 py-3 rounded-md font-medium hover:opacity-90">
+        Try ComputeLite Now
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-border text-center py-6 text-muted-foreground text-sm">
+    <p>&copy; 2025 ComputeLite. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

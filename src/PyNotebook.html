@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!-- Primary Meta Tags -->
+    <title>Compute Lite NoteBook</title>
+    <meta name="viewport" content="width=1024, initial-scale=1, shrink-to-fit=no">
+    <meta name="title" content="Compute Lite">
+    <meta name="author" content="SCL">
+    <meta name="description" content="Compute in Browser">
+    <meta name="keywords" content="compute lite, edge compute, edge data, macro in browser, compute in browser, wasm" />
+    <link rel="canonical" href="https://www.ComputeLite.com">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.ComputeLite.com">
+    <meta property="og:title" content="Compute Lite">
+    <meta property="og:description" content="Compute in Browser">
+    <meta property="og:image" content="assets/img/favicon/summence.svg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.ComputeLite.com">
+    <meta property="twitter:title" content="Compute Lite">
+    <meta property="twitter:description" content="Compute in Browser">
+    <meta property="twitter:image" content="assets/img/favicon/summence.svg">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="120x120" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon.ico">
+    <link rel="mask-icon" href="favicon.ico" color="#ffffff">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+
+    <!-- <link type="text/css" href='./scss/pixel.scss' rel="stylesheet">
+    <link type="text/css" href='./scss/scl.css' rel="stylesheet"> -->
+    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <!-- <link type="text/css" href="./page_assets/privacy-policy/css/style.css" rel="stylesheet"> -->
+    <link type="text/css" href="./page_assets/S_notebook/css/style.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <header class="w-full border-b bg-background px-8 sticky top-0 z-30">
+
+        <div class="max-w-none flex items-center justify-between py-3 px-2">
+            <!-- Sidebar Toggle -->
+            <button id="toggleSidebar" 
+            class="mr-4 cursor-pointer inline-flex items-center justify-center rounded-md border border-input bg-background p-2 text-foreground hover:bg-accent hover:text-accent-foreground">
+                <span id="toggleSidebarIcon" class="fa-solid fa-bars"></span>
+            </button>
+            <a href="./homePage.html" class="ml-4 text-lg font-semibold text-foreground">
+            Compute <b>Lite</b>
+            </a>
+    
+            <!-- Extra Nav Link -->
+            <a href="./homePage.html" class="ml-4 text-sm font-medium text-foreground hover:text-primary">
+                Playground
+            </a>
+            
+            <!-- Mobile Menu Toggle -->
+            <button class="ml-auto inline-flex items-center justify-center rounded-md border border-input bg-background p-2 text-foreground lg:hidden hover:bg-accent hover:text-accent-foreground"
+                data-collapse-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false">
+            <span class="fa-solid fa-ellipsis-vertical"></span>
+        </button>
+        
+        <!-- Desktop Nav -->
+        <nav id="navbarNav" class="hidden lg:flex ml-auto">
+            <ul class="flex space-x-4 items-center">
+                    <button id="addTopCell" class="cell-controls-button addCell" title="Add Cell Here">
+                        Add Cell <span class="fa-solid fa-square-plus ms-2 me-1"></span>
+                    </button>
+                    <li>
+                        <a href="#get-started" class="rounded-lg bg-white p-2 text-foreground shadow-sm hover:bg-accent hover:text-accent-foreground">
+                            <span class="fa-brands fa-github"></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+
+    <div>
+        <div id="loadingOverlay" class="loading-overlay hidden">
+            
+            <div class="three-dots-loader">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+        </div>
+        <computelite-notebook>
+            <aside id="sidebarMenu" class="tree p-3 col-3 ps-3 contracted z-20">
+                <div class="flex justify-end p-1">
+                    <div>
+                        <span id="addNotebook" class="fa-solid fa-file-circle-plus pe-2 cursor-pointer" title="Add NoteBook"></span>
+                        <span id="deleteNotebook" class="fa fa-trash pe-3 cursor-pointer" title="Delete NoteBook"></span>
+                    </div>
+                </div>
+                <div id="inputDiv" class="input-group hidden mb-3">
+                    <input id="notebookName" type="text" class="input small-input" placeholder="NoteBook Name" autocomplete="off">
+                </div>
+                <div id="jsListDiv" class="list-group mt-2 gap-2">
+                    
+                </div>
+            </aside>
+            <div class="mainDiv">
+                <main id="cellContainer" class="cells-container cell-position">
+                    
+                </main>
+                <footer class="computelite-notebook-footer line-grid">
+                    <div class="computelite-notebook-footer-content flex items-center">        
+                        <button id="addCell" class="cell-controls-button addCell" title="Add Cell Here">
+                            Add Cell <span class="fa-solid fa-square-plus ms-2 me-1"></span>
+                        </button>
+                    </div>
+                </footer>
+            </div>
+        </computelite-notebook>
+    </div>
+    <script src="./coi-serviceworker.js"></script>
+    <script type="module" src="./page_assets/S_notebook/js/script.js"></script>
+    <script type="module" src="./assets/js/pixel.js"></script>
+
+</body>
+
+</html>
