@@ -35,7 +35,6 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff">
 
-    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="./assets/css/style.css" />
     <link rel="stylesheet" href="./page_assets/home-page/css/style.css">
 </head>
@@ -63,7 +62,7 @@
                         <div class="ml-10 flex items-baseline space-x-2">
                             <!-- Model Dropdown -->
                             <div class="relative">
-                                <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center cursor-pointer" id="models-menu-button">
+                                <button class="btn-ghost" id="models-menu-button">
                                     Models
                                     <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M19 9l-7 7-7-7"></path>
@@ -85,14 +84,13 @@
                                             <li id="model-createView"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Create View</a>                                    
                                             <li id="editorBtn"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">SQL Editor</a>
                                             <li id="uploadPackage"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Upload Package</a></li>
-                                            </li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
                             <!-- Files Dropdown -->
                             <div class="relative">
-                                <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center cursor-pointer" id="files-menu-button">
+                                <button class="btn-ghost" id="files-menu-button">
                                     Files
                                     <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M19 9l-7 7-7-7"></path>
@@ -110,7 +108,7 @@
                             </div>
                             <!-- Runs Dropdown -->
                             <div class="relative">
-                                <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center cursor-pointer" id="run-menu-button">
+                                <button class="btn-ghost" id="run-menu-button">
                                     RUN
                                     <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M19 9l-7 7-7-7"></path>
@@ -129,7 +127,7 @@
                             </div>
                             <!-- Notebooks Dropdown -->
                             <div class="relative">
-                                <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center cursor-pointer" id="notebook-menu-button">
+                                <button class="btn-ghost" id="notebook-menu-button">
                                     Notebooks
                                     <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M19 9l-7 7-7-7"></path>
@@ -153,7 +151,7 @@
                     <div class="ml-4 flex items-center md:ml-6">
                         <div class="flex items-center space-x-3">
                             <!-- Query Sheet -->
-                            <a id="querySheet" title="Query Sheet" class="p-2.5 rounded-full bg-primary cursor-pointer hidden">
+                            <a id="querySheet" title="Query Sheet" class="p-2.5 rounded-full bg-primary cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-5 h-5">
                                     <path fill="white" d="M0 448c0 35.3 28.7 64 64 64h160V384c0-17.7 14.3-32 32-32h128V64c0-35.3-28.7-64-64-64H64C28.7 0 0 28.7 0 64v384zM171.3 75.3l-96 96c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l96-96c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6zm96 32l-160 160c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l160-160c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6zM384 384H256v128l128-128z"/></svg>
                             </a>

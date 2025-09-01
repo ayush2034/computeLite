@@ -1,16 +1,19 @@
-* {
+/* * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
+    font-family: poppins, sans-serif;
+} */
 
 body {
-    background-image: url('/assets/img/pages/form-image.jpg');
-    background-repeat: no-repeat;
+    /* background-image: url('/assets/img/pages/form-image.jpg'); */
+    /* background-repeat: no-repeat;    */
     background-size: cover;
     background-position: center;
     color: #ffffff;
     position: relative;
+    padding-left: 3rem;
+    padding-right: 3rem;
 }
 
 .hero {
@@ -105,10 +108,14 @@ p {
     background-color: #f3f4f6 !important;
 }
 
-#accordionFeatures{
+/* #accordionFeatures{
     height: 155vh;
-}
+} */
 
 .accordion-body p{
     color: #1c2540;
+}
+
+.bc-accordion-panel p{
+    color: var(--primary) !important;
 }

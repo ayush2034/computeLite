@@ -76,18 +76,16 @@ async function reset_z_layout(x_columns, y_columns, z_columns) {
 
 function get_lov_zdiv(level_name){
 
-    const input_tag = get_cl_element("span", "btn btn-sm btn-primary", null, document.createTextNode(level_name))
+    const input_tag = get_cl_element("span", "btn-sm btn-primary rounded-l-md rounded-r-none", null, document.createTextNode(level_name))
     const th2 = get_cl_element("div", "pl-2", null,
-        get_cl_element("div", "input-group", null, input_tag))
+        get_cl_element("div", "input-group dropdown-menu flex", null, input_tag))
+        
+    const span = get_cl_element("button","btn-sm btn-primary rounded-l-none rounded-r-md p-1",null,get_cl_element("span","fas fa-angle-down dropdown-arrow"))
+    span.setAttribute("aria-haspopup", "menu")
+    span.setAttribute("aria-expanded", "false")
+    span.setAttribute("aria-controls", "demo-dropdown-menu-menu")
 
-
-    input_tag.setAttribute("aria-haspopup", "true")
-    input_tag.style.cursor = "default"
-    input_tag.setAttribute("aria-expanded", "false")
-
-    const span = get_cl_element("button","btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split",null,get_cl_element("span","fas fa-angle-down dropdown-arrow"))
-    
-    span.addEventListener('show.bs.dropdown', async function () {
+    span.addEventListener("click", async function () {
         const lov_div = th2.querySelector("div.lov-values")
         let where_in = {}
         where_in[level_name] = []
@@ -115,8 +113,8 @@ function get_lov_zdiv(level_name){
         
         const total_len = result.length
         for (let col_value of result) {
-            let el = get_cl_element("a", "dropdown-item", null,
-                get_cl_element("input", "form-check-input", null, null))
+            let el = get_cl_element("a", "flex items-center px-2 py-0.5 cursor-pointer hover:bg-gray-100 rounded", null,
+                        get_cl_element("input", "input mr-2", null, null))
             el.firstChild.setAttribute("type", "checkbox")
             if (selected_mems.length > 0) {
                 if(col_value !==null){
@@ -129,7 +127,7 @@ function get_lov_zdiv(level_name){
             } else {
                 el.firstChild.checked = true
             }
-            el.appendChild(get_cl_element("label", "form-check-label", null,
+            el.appendChild(get_cl_element("label", "label", null,
                 document.createTextNode(col_value)))
             lov_div.appendChild(el)
             // $(el.firstChild).on("change", function (e) {
@@ -158,49 +156,55 @@ function get_lov_zdiv(level_name){
     span.setAttribute("aria-expanded", "false")
     th2.querySelector("div.input-group").appendChild(span)
 
-    const dropdown = get_cl_element("div", "multiselect-container dropdown-menu dropdown", null,
-        get_cl_element("form", null, null,
-            get_cl_element("a", "dropdown-item", null,
-                get_cl_element("input", "form-check-input", null, null))))
-    dropdown.querySelector("a")
-        .appendChild(get_cl_element("label", "form-check-label", null,
-            document.createTextNode("Select All")))
-    
-    dropdown.querySelector("input").setAttribute("type", "checkbox")
-    dropdown.firstChild.appendChild(get_cl_element("div", "dropdown-divider"))
-    let lov_div = get_cl_element("div", "lov-values")
-    lov_div.setAttribute("level_name", level_name)
-    dropdown.firstChild.appendChild(lov_div)
-    dropdown.firstChild.appendChild(get_cl_element("div", "dropdown-divider"))
-    const inp_tag = dropdown.querySelector("input")
-    inp_tag.onchange= function (e) {
-        if (inp_tag.checked) {
-            for (let cn of th2.querySelectorAll("div.lov-values input")) {
-                if (!cn.checked) {
-                    cn.checked = true
-                }
-            }
-        } else {
-            for (let cn of th2.querySelectorAll("div.lov-values input")) {
-                if (cn.checked) {
-                    cn.checked = false
-                }
-            }
-        }
-    }
-    const prim_button = get_cl_element("button", "btn btn-sm btn-primary", null,
-        document.createTextNode("OK"))
-    const ter_button = get_cl_element("button", "btn btn-sm btn-tertiary", null,
-        document.createTextNode("CLEAR"))
-    dropdown.firstChild.appendChild(get_cl_element("div", "px-2 py-2 d-flex flex-row justify-content-between", 
-                                            null,ter_button))
+    // --- Dropdown container
+    const dropdown = get_cl_element("div", "min-w-56", null, null)
+    dropdown.setAttribute("data-popover", "")
+    dropdown.setAttribute("aria-hidden", "true")
 
+    const role_menu = get_cl_element("div", null, null, null)
+    role_menu.setAttribute("role", "menu")
+    role_menu.setAttribute("aria-labelledby", "demo-dropdown-menu-trigger")
 
-    ter_button.parentNode.appendChild(prim_button)
-    ter_button.setAttribute("type", "button")
-    prim_button.setAttribute("type", "button")
+    // --- Select All
+    const select_all_label = get_cl_element("label",
+        "flex items-center px-2 py-1 cursor-pointer hover:bg-gray-100 rounded",
+        null,
+        get_cl_element("input", "mr-2 input", null, null))
+    select_all_label.querySelector("input").type = "checkbox"
+    select_all_label.appendChild(document.createTextNode("Select All"))
+    role_menu.appendChild(select_all_label)
+
+    // Divider
+    role_menu.appendChild(get_cl_element("div", "border-t my-2"))
+
+    // Values container
+    const lov_container = get_cl_element("div", "lov-values max-h-40 overflow-y-auto space-y-1 grid")
+    role_menu.appendChild(lov_container)
+
+    // Divider
+    role_menu.appendChild(get_cl_element("div", "border-t my-2"))
+
+    // Buttons
+    const btn_wrapper = get_cl_element("div", "flex justify-between p-1", null, null)
+    const ter_button = get_cl_element("button", "btn-secondary btn-sm", null, document.createTextNode("CLEAR"))
+    const prim_button = get_cl_element("button", "btn-primary btn-sm ml-auto", null, document.createTextNode("OK"))
+    prim_button.type = "button"
+    ter_button.type = "button"
+    btn_wrapper.appendChild(ter_button)
+    btn_wrapper.appendChild(prim_button)
+    role_menu.appendChild(btn_wrapper)
+
+    dropdown.appendChild(role_menu)
+
+    // === NEW: Select All propagation ===
+    select_all_label.querySelector("input").addEventListener("change", function (e) {
+        lov_container.querySelectorAll("input[type=checkbox]").forEach(cb => {
+            cb.checked = e.target.checked
+        })
+    })
 
     prim_button.addEventListener("mousedown", function (e) {
+        
         let ct = th2.querySelectorAll("div.lov-values input:checked").length
         let total_len = th2.querySelectorAll("div.lov-values input").length
 
@@ -250,6 +254,9 @@ function get_lov_zdiv(level_name){
                 }
             }
         }
+
+        dropdown.setAttribute("aria-hidden","true")
+        span.setAttribute("aria-expanded","false")
         
     })
 
@@ -283,6 +290,9 @@ function get_lov_zdiv(level_name){
             span.removeChild(span.childNodes[0])
             span.firstChild.style = ""
         }
+
+        dropdown.setAttribute("aria-hidden", "true")
+        span.setAttribute("aria-expanded","false")
     })
 
     th2.querySelector("div.input-group").appendChild(dropdown)
@@ -424,7 +434,7 @@ const getLayoutFromTable = async () => {
 }
 
 const loader_div = function () {
-    let div = get_cl_element("div", "h-100 w-100 d-flex justify-content-center align-items-center")
+    let div = get_cl_element("div", "h-100 w-100 flex items-center justify-center")
     let img = `<button class="btn btn-primary h-25 btn-lg" type="button" disabled>
                     <span class="spinner-grow spinner-grow-lg" role="status" aria-hidden="true"></span>
                     Loading...

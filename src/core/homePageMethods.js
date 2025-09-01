@@ -324,7 +324,7 @@ export async function getUserModels() {
           }
       }
   }
-  console.log('all models',all_models)
+
   return all_models
 }
 

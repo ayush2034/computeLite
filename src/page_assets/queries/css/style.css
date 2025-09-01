@@ -133,10 +133,10 @@ background-color: transparent;
         padding-left: 0.75rem;
     }
     
-    .dropdown-menu a {
+    /* .dropdown-menu a {
         padding-top: 0 !important;
         padding-bottom: 0 !important;
-    }
+    } */
     
     th.min-width{
         min-width: 100px;
@@ -1036,4 +1036,42 @@ min-height: 88vh;
 }
 .nav-link {
   color: #374151;
+}
+
+.tab-content > .tab-pane {
+  display: none;
+}
+.tab-content > .active {
+  display: block;
+}
+
+.fade {
+  transition: opacity 0.15s linear;
+}
+
+.spinner-grow {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  vertical-align: -.125em;
+  background-color: currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  -webkit-animation: .75s linear infinite spinner-grow;
+  animation: .75s linear infinite spinner-grow;
+}
+
+@keyframes spinner-grow {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.spinner-grow-lg {
+  width: 3rem;
+  height: 3rem;
 }

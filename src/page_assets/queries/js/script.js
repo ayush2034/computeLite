@@ -16,6 +16,34 @@ let SerProperties
 let inrText = ""
 
 window.onload = async function () {
+    const headers = document.querySelectorAll('.accordion-header');
+    const contents = document.querySelectorAll('.accordion-content');
+
+    headers.forEach(header => {
+        header.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const content = document.getElementById(targetId);
+            const chevron = this.querySelector('span.fa-chevron-right');
+
+            // Close all accordion contents and reset their icons
+            contents.forEach(item => {
+                if (item.id !== targetId && !item.classList.contains('hidden')) {
+                    item.classList.add('hidden');
+                    const otherHeader = document.querySelector(`.accordion-header[data-target="${item.id}"]`);
+                    const otherChevron = otherHeader.querySelector('span.fa-chevron-right');
+                    otherChevron.style.transform = 'rotate(0deg)';
+                }
+            });
+
+            // Toggle the clicked accordion's content and rotate its icon
+            content.classList.toggle('hidden');
+            if (content.classList.contains('hidden')) {
+                chevron.style.transform = 'rotate(0deg)';
+            } else {
+                chevron.style.transform = 'rotate(90deg)';
+            }
+        });
+    });
     let result = await executeQuery('init');
     if (!result || result.msg !== 'Success') {
         confirmBox('Alert!', 'Some error occurred while initializing SQLite.');
@@ -24,11 +52,16 @@ window.onload = async function () {
 
     enable_sortable()
     await get_all_tables()
-    
-    
+
+    document.getElementById("openNewColumn").onclick = show_query_modal;
+    document.getElementById("displayQueryBtn").onclick = show_query_modal;
+    document.getElementById("aggQueryBtn").onclick = show_query_modal;
+    document.getElementById("seriesQueryBtn").onclick = show_query_modal;
+    document.getElementById("layoutQueryBtn").onclick = show_query_modal;
+
     document.getElementById("addAllAggregation").onclick = move_elements.bind(null, "availableLevel", "selectedLevel", "addAll");
     document.getElementById("removeAllAggregation").onclick = move_elements.bind(null, "selectedLevel", "availableLevel", "removeAll");
-    document.getElementById("searchQuery").onkeyup = findtr
+    document.getElementById("searchQuery").onkeyup = findtr;
     
     document.getElementById('aggregation-new').addEventListener('shown.bs.tab', async function () {
         const query_name = document.getElementById('queryNm').value;
@@ -100,13 +133,33 @@ window.onload = async function () {
         const tabIdMap = {
             "edit": "display-new"
         };
-    
+
         if (tabIdMap[inrText]) {
-            const tab = new bootstrap.Tab(document.getElementById(tabIdMap[inrText]));
-            tab.show();
+            const tabBtn = document.getElementById(tabIdMap[inrText]);
+            if (tabBtn) {
+                document.querySelectorAll('[role="tab"]').forEach(el => {
+                    el.classList.remove('active');
+                    el.setAttribute('aria-selected', 'false');
+                });
+                tabBtn.classList.add('active');
+                tabBtn.setAttribute('aria-selected', 'true');
+
+                document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+                    panel.classList.add('hidden');
+                    panel.classList.remove('active');
+                });
+                const panelId = tabBtn.getAttribute('aria-controls');
+                
+                if (panelId) {
+                    const panel = document.getElementById(panelId);
+                    if (panel) {
+                        panel.classList.remove('hidden');
+                        panel.classList.add('active');
+                    }
+                }
+            }
         }
-        const bs_modal = new bootstrap.Modal(document.getElementById('modal-select-column'));
-        bs_modal.show()
+        document.getElementById('modal-select-column').classList.remove('hidden');
     }
 
     
@@ -143,41 +196,68 @@ async function get_all_tables() {
     }
 }
 
-document.getElementById('modal-select-column').addEventListener('show.bs.modal', function (e) {
-    const button = e.relatedTarget // Button that triggered the modal
+// Basecoat UI tab switching for modal
+function show_query_modal(e) {
+    const button = e.currentTarget;
     if (button) {
-        let inner_text
+        let inner_text;
         if (button.classList.contains("navIocn")) {
-            inner_text = button.getAttribute("title").trim().toLowerCase()
+            inner_text = button.getAttribute("title").trim().toLowerCase();
         } else {
-            inner_text = button.innerText.trim().toLowerCase()
+            inner_text = button.innerText.trim().toLowerCase();
         }
-        if (inner_text == "display") {
-            const tab = new bootstrap.Tab(document.getElementById('display-new'));
-            tab.show()
-        } else if (inner_text == "series") {
-            const tab = new bootstrap.Tab(document.getElementById('series-new'));
-            tab.show()
-        } else if (inner_text == "aggregation") {
-            const tab = new bootstrap.Tab(document.getElementById('aggregation-new'));
-            tab.show()
-        } else if (inner_text == "layout") {
-            const tab = new bootstrap.Tab(document.getElementById('layout-new'));
-            tab.show()
-        } else if (inner_text == "new") {
-            const tab = new bootstrap.Tab(document.getElementById('display-new'));
-            tab.show()
-            reset_new_wk_def()
-        } else if (inner_text == "save as"){
-            const tab = new bootstrap.Tab(document.getElementById('display-new'));
-            tab.show()
+
+        // Basecoat UI tab switching
+        const tabMap = {
+            "display": "display-new",
+            "series": "series-new",
+            "aggregation": "aggregation-new",
+            "layout": "layout-new",
+            "new": "display-new",
+            "save as": "display-new"
+        };
+
+        if (tabMap[inner_text]) {
+            // Basecoat UI: activate tab by setting aria-selected and toggling classes
+            const tabBtn = document.getElementById(tabMap[inner_text]);
+            if (tabBtn) {
+                // Remove active from all tabs
+                document.querySelectorAll('[role="tab"]').forEach(el => {
+                    el.classList.remove('active');
+                    el.setAttribute('aria-selected', 'false');
+                });
+                tabBtn.classList.add('active');
+                tabBtn.setAttribute('aria-selected', 'true');
+
+                // Hide all tab panels
+                document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+                    panel.classList.add('hidden');
+                    panel.classList.remove('active');
+                });
+                // Show the selected tab panel
+                const panelId = tabBtn.getAttribute('aria-controls');
+                console.log(panelId);
+                
+                if (panelId) {
+                    const panel = document.getElementById(panelId);
+                    if (panel) {
+                        panel.classList.remove('hidden');
+                        panel.classList.add('active');
+                    }
+                }
+            }
+        }
+
+        if (inner_text === "new") {
+            reset_new_wk_def();
+        } else if (inner_text === "save as") {
             document.getElementById("queryNm").value = "";
             document.getElementById("queryNm").disabled = false;
             document.getElementById("tableNm").value = "";
-        } 
-
+        }
     }
-})
+    document.getElementById('modal-select-column').classList.remove('hidden');
+};
 
 function reset_new_wk_def() {
     document.getElementById("queryNm").value = "";
@@ -553,14 +633,14 @@ function dblClickHandler(e) {
 
 function get_advanced_table(seriesNm, val, tbody) {
     
-    const row = get_cl_element("tr");
+    const row = get_cl_element("tr","border-b");
 
-    const td1 = get_cl_element("td", "td-size");
+    const td1 = get_cl_element("td", "td-size border-r p-2");
     td1.innerText = seriesNm;
     row.appendChild(td1);
 
-    const td2 = get_cl_element("td");
-    const select = get_cl_element("select", "form-control form-select py-1 moduleForm-feild");
+    const td2 = get_cl_element("td","border-r p-2");
+    const select = get_cl_element("select", "select w-full py-1 moduleForm-feild");
     ["sum", "min", "max", "avg", "count", "group_concat"].forEach(opt => {
         const option = get_cl_element("option");
         option.setAttribute("value", opt)
@@ -570,8 +650,8 @@ function get_advanced_table(seriesNm, val, tbody) {
     td2.appendChild(select);
     row.appendChild(td2);
 
-    const td3 = get_cl_element("td");
-    const input = get_cl_element("input", "form-control form-control-sm");
+    const td3 = get_cl_element("td","border-r p-2");
+    const input = get_cl_element("input", "input");
     input.type = "text";
     input.value = val;
     td3.appendChild(input);
@@ -784,7 +864,7 @@ document.getElementById('openModalBtn').onclick = async function (e) {
     let sel_body = document.getElementById('selectQueries-table')
     sel_body.innerHTML = ""
     document.getElementById('searchQuery').value = "";
-    document.getElementById('searchQuery').style.display = 'none';
+    document.getElementById('searchQuery').classList.add('hidden');
     let sel_query = `SELECT QueryId, Name FROM S_Queries`;
     let res = await executeQuery("fetchData",modelName,sel_query);
     
@@ -801,15 +881,13 @@ document.getElementById('openModalBtn').onclick = async function (e) {
         sel_body.firstChild.click()
     }
     
-    const bs_modal = new bootstrap.Modal(document.getElementById('select-querySheet'));
-    bs_modal.show()
+    document.getElementById('select-querySheet').classList.remove('hidden');
 }
 
 document.getElementById('selectQuery-ok').onclick = async function () {
     let selected_query = document.getElementById('selectQueries-table').querySelector('tr.selectedValue').innerText
     
-    const bs_modal = bootstrap.Modal.getInstance(document.getElementById('select-querySheet'))
-    bs_modal.hide()
+    document.getElementById('select-querySheet').classList.add('hidden');
 
     if(selected_query !== sessionStorage.qr_name){
         sessionStorage.qr_name = selected_query
@@ -859,11 +937,13 @@ function get_tr_element(member_name, colname = "xx") {
 
 document.getElementById('search_qr').onclick = function () {
     let search_inp = document.getElementById('searchQuery')
-    if (search_inp.style.display == "none") {
-        search_inp.style.display = '';
+    console.log(search_inp);
+    
+    if (search_inp.classList.contains('hidden')) {
+        search_inp.classList.remove('hidden');
         search_inp.focus()
     } else {
-        search_inp.style.display = 'none';
+        search_inp.classList.add('hidden');
     }
 }
 
@@ -1041,8 +1121,8 @@ document.getElementById('save_qr').onclick = async function () {
     document.getElementById('hideNullRows').checked = false;
     sessionStorage.qr_name = new_query["Name"]
 
-    const bs_modal = bootstrap.Modal.getInstance(document.getElementById('modal-select-column'));
-    bs_modal.hide()
+    document.getElementById('modal-select-column').classList.add('hidden');
+
     confirmBox('Success', 'Query saved successfully!');
     await get_querySheet_def()
     await set_querysheet_def()

@@ -43,57 +43,57 @@
     
 </head>
 
-<body class="px-5">
-
-    <header class="navbar navbar-expand-lg">
-        <div class="container" style="max-width: none;">
-            <a class="navbar-logo" href="./homePage.html" style="font-weight: 600;">Compute <b>Lite</b></a>
-            <a class="navbar-el ms-4" href="./homePage.html" style="font-weight: 600;">Playground</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="bg-white p-2 font-weight-large" href="https://github.com/computelite/computelite" target="_blank"><span class="fa-brands fa-github"></span></a></li>
-                </ul>
+<body class="px-5 bg-gradient-to-tr from-neutral-950 to-neutral-700">
+    <header>
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div>
+                <a class="navbar-logo font-semibold" href="./homePage.html">Compute <b>Lite</b></a>
+                <a class="navbar-el ms-4 font-semibold" href="./homePage.html">Playground</a>
             </div>
+            <nav class="flex items-center space-x-6 text-sm">
+                <a href="https://github.com/computelite/computelite" target="_blank" class="btn-secondary" type="button">
+                <span class="fa-brands fa-github"></span>
+                </a>
+            </nav>
         </div>
     </header>
     
-    <section class="hero text-white flex items-center mt-5" style="height: auto;">
-        <div class="">
-            <h1 class="display-4">Welcome to Compute Lite</h1>
-            <p class="mt-3 lead">ComputeLite is a revolutionary serverless tool designed for powerful, in-browser computation. Leveraging the capabilities of Pyodide, WebR, Modern Javascript and SQLite OPFS, ComputeLite ensures that all data and code remain securely in the browser, with no server dependencies or external storage. This approach not only enhances privacy and security but also offers seamless, edge computing for data analysis and processing, entirely in the user's control. ComputeLite represents a leap forward in user-centered, in-browser computing, making advanced computations accessible and secure.</p>
-            <a href="./homePage.html" class="btn btn-lg align-items-center py-1 px-5 bg-white mt-4 text-white" ><p style="font-size: 20px;font-weight: 700;color: #1c2540;" class="m-0">Open Compute Lite</p></a>
+    <section class="hero text-white flex items-center mt-12" style="height: auto;">
+        <div>
+            <h1 class="text-3xl font-bold mb-2">Welcome to Compute Lite</h1>
+            <p class="mt-5 lead">ComputeLite is a revolutionary serverless tool designed for powerful, in-browser computation. Leveraging the capabilities of Pyodide, WebR, Modern Javascript and SQLite OPFS, ComputeLite ensures that all data and code remain securely in the browser, with no server dependencies or external storage. This approach not only enhances privacy and security but also offers seamless, edge computing for data analysis and processing, entirely in the user's control. ComputeLite represents a leap forward in user-centered, in-browser computing, making advanced computations accessible and secure.</p>
+            <a href="./homePage.html" class="btn align-items-center py-1 px-5 bg-white mt-4 text-white" >
+                <span class="m-0 text-primary font-bold text-lg">Open Compute Lite</span>
+            </a>
         </div>
     </section>
     
     <section class="tool-features" id="features">
         <div class="text-white">
-            <h2 class="mb-5 font-weight-large">Languages supported</h2>
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="feature-card p-3 bg-transparent rounded shadow text-center">
+            <h2 class="mb-8 font-weight-large text-3xl font-semibold">Languages supported</h2>
+            <div class="flex flex-row gap-6">
+                <div class="w-1/5">
+                    <div class="feature-card p-3 bg-transparent rounded shadow text-center flex flex-col items-center">
                         <i class="fas fa-database fa-3x mb-3"></i>
-                        <h3>SQL</h3>
+                        <h3 class="mt-2 text-lg font-semibold">SQL</h3>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <div class="feature-card p-3 bg-transparent rounded shadow text-center">
-                        <i class="fas fa-brands fa-python fa-3x mb-3"></i>
-                        <h3>Python</h3>
+                <div class="w-1/5">
+                    <div class="feature-card p-3 bg-transparent rounded shadow text-center flex flex-col items-center">
+                        <i class="fa-brands fa-python fa-3x mb-3"></i>
+                        <h3 class="mt-2 text-lg font-semibold">Python</h3>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <div class="feature-card p-3 bg-transparent rounded shadow text-center">
-                        <i class="fas fa-brands fa-js fa-3x mb-3"></i>
-                        <h3>Javascript</h3>
+                <div class="w-1/5">
+                    <div class="feature-card p-3 bg-transparent rounded shadow text-center flex flex-col items-center">
+                        <i class="fa-brands fa-js fa-3x mb-3"></i>
+                        <h3 class="mt-2 text-lg font-semibold">Javascript</h3>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <div class="feature-card p-3 bg-transparent rounded shadow text-center">
+                <div class="w-1/5">
+                    <div class="feature-card p-3 bg-transparent rounded shadow text-center flex flex-col items-center">
                         <i class="fas fa-r fa-3x mb-3"></i>
-                        <h3>R</h3>
+                        <h3 class="mt-2 text-lg font-semibold">R</h3>
                     </div>
                 </div>
             </div>
@@ -101,173 +101,165 @@
     </section>
 
 
-    <section class="tool-features hero" id="accordionFeatures">
-        <h1 class="text-center mb-5" style="color: white;">FAQ's</h1>
-        <div class="row justify-content-center h-100">
-            <div class="accordion col-9" id="accordionGroup">
-                <div class="accordion-item border-light mb-0">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#dataStored" aria-controls="dataStored">
-                            <span class="h6 mb-0 font-weight-bold">Where is my data stored?</span>
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" id="dataStored" data-bs-parent="#accordionGroup">
-                        <div class="accordion-body">
-                            <p>All your data is stored locally within your browser using SQLite's <b>OPFS (Origin Private File System)</b>. This means that the data never leaves your device unless you explicitly export or share it. Your data is securely contained within the browser's sandbox, ensuring privacy and local control.</p>
-                        </div>
+    <section class="py-20 text-white" id="accordionFeatures">
+        <h2 class="text-3xl font-bold text-center mb-12">FAQ's</h2>
+        <div class="max-w-3xl mx-auto">
+            <div>
+                <!-- Accordion Item -->
+                <div class="shadow-md bg-white text-gray-900 overflow-hidden border-t rounded-t-md">
+                    <button 
+                        class="bc-accordion-trigger cursor-pointer w-full flex justify-between items-center px-6 py-5 text-left font-medium text-lg hover:bg-gray-50 transition"
+                        aria-controls="bc-dataStored" aria-expanded="false">
+                        <span class="font-semibold text-base">Where is my data stored?</span>
+                        <span class="ml-4 text-xl font-bold">+</span>
+                    </button>
+                    <div class="bc-accordion-panel p-5 text-gray-700" id="bc-dataStored" hidden>
+                    <p>
+                        All your data is stored locally within your browser using SQLite's 
+                        <b>OPFS (Origin Private File System)</b>. This means the data never leaves 
+                        your device unless you export or share it. 
+                    </p>
                     </div>
-    
                 </div>
-                <div class="accordion-item border-light mb-0">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#dataSecure" aria-controls="dataSecure">
-                            <span class="h6 mb-0 font-weight-bold">Is my data secure?</span>
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" id="dataSecure" data-bs-parent="#accordionGroup">
-                        <div class="accordion-body">
-                            <p>Yes, your data is secure. ComputeLite operates entirely within your browser's sandbox environment, leveraging Pyodide and OPFS. Since the app is a static web application:</p>
-                            <p class="ms-4">• <b>No data is sent to external servers;</b> everything stays on your device.</p>
-                            <p class="ms-4">• The browser's security mechanisms protect the data against unauthorized access.</p>
-                            <p class="ms-4">• ComputeLite inherits security features from modern web standards like HTTPS and browser sandboxing.</p>
-                            <p>For maximum security, always use ComputeLite in a trusted browser and device.</p>                     
-                        </div>
+
+                <!-- Accordion Item -->
+                <div class="shadow-md bg-white text-gray-900 overflow-hidden border-t">
+                    <button 
+                    class="bc-accordion-trigger cursor-pointer w-full flex justify-between items-center px-6 py-5 text-left font-medium text-lg hover:bg-gray-50 transition"
+                    aria-controls="bc-dataSecure" aria-expanded="false">
+                        <span class="font-semibold text-base">Is my data secure?</span>
+                        <span class="ml-4 text-xl font-bold">+</span>
+                    </button>
+                    <div class="bc-accordion-panel p-5" id="bc-dataSecure" hidden>
+                        <p>Yes, your data is secure. ComputeLite operates entirely within your browser’s sandbox:</p>
+                        <ul class="list-disc pl-6 mt-2 space-y-1">
+                            <li><b>No data is sent to servers</b> — everything stays on your device.</li>
+                            <li>Browser sandbox security prevents unauthorized access.</li>
+                            <li>Protected by HTTPS and modern web standards.</li>
+                        </ul>
                     </div>
-    
                 </div>
-                <div class="accordion-item border-light mb-0">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#backupData" aria-controls="backupData">
-                            <span class="h6 mb-0 font-weight-bold">How can I back up or share my data?</span>
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" id="backupData" data-bs-parent="#accordionGroup">
-                        <div class="accordion-body">
-                            <p>You can export your data at any time to ensure it’s backed up or to share it with others. Data export is available in <b>.sqlite3</b> format. You can also import it back into ComputeLite when needed.</p>                            
-                        </div>
+
+                <!-- Accordion Item -->
+                <div class="shadow-md bg-white text-gray-900 overflow-hidden border-t">
+                    <button 
+                    class="bc-accordion-trigger cursor-pointer w-full flex justify-between items-center px-6 py-5 text-left font-medium text-lg hover:bg-gray-50 transition"
+                    aria-controls="backupData" aria-expanded="false">
+                        <span class="font-semibold text-base">How can I back up or share my data?</span>
+                        <span class="ml-4 text-xl font-bold">+</span>
+                    </button>
+                    <div class="bc-accordion-panel p-5 text-gray-700" id="backupData" hidden>
+                        <p>You can export your data at any time to ensure it’s backed up or to share it with others. Data export is available in <b>.sqlite3</b> format. You can also import it back into ComputeLite when needed.</p>
                     </div>
-    
                 </div>
-                <div class="accordion-item border-light mb-0">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#switchDevice" aria-controls="switchDevice">
-                            <span class="h6 mb-0 font-weight-bold">What happens if I clear my browser cache or switch devices?</span>
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" id="switchDevice" data-bs-parent="#accordionGroup">
-                        <div class="accordion-body">
-                            <p>Since your data is stored in the browser, clearing your browser cache or switching devices will erase or make your data unavailable unless you’ve exported it. Always back up your data regularly if you plan to switch devices or clear your browser.</p>
-                        </div>
+
+                <div class="shadow-md bg-white text-gray-900 overflow-hidden border-t">
+                    <button 
+                    class="bc-accordion-trigger cursor-pointer w-full flex justify-between items-center px-6 py-5 text-left font-medium text-lg hover:bg-gray-50 transition"
+                    aria-controls="switchDevice" aria-expanded="false">
+                        <span class="font-semibold text-base">What happens if I clear my browser cache or switch devices?</span>
+                        <span class="ml-4 text-xl font-bold">+</span>
+                    </button>
+                    <div class="bc-accordion-panel p-5 text-gray-700" id="switchDevice" hidden>
+                        <p>Since your data is stored in the browser, clearing your browser cache or switching devices will erase or make your data unavailable unless you’ve exported it. Always back up your data regularly if you plan to switch devices or clear your browser.</p>
                     </div>
-    
                 </div>
-                <div class="accordion-item border-light mb-0">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#systemRequirement" aria-controls="systemRequirement">
-                            <span class="h6 mb-0 font-weight-bold">What are the system requirements for ComputeLite?</span>
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" id="systemRequirement" data-bs-parent="#accordionGroup">
-                        <div class="accordion-body">
-                            <p>ComputeLite runs in any modern browser (e.g., Chrome, Firefox, Edge, or Safari). There’s no need to install software or extensions—just open the app in your browser and start working.</p>
-                        </div>
+
+                <div class="shadow-md bg-white text-gray-900 overflow-hidden border-t">
+                    <button 
+                    class="bc-accordion-trigger cursor-pointer w-full flex justify-between items-center px-6 py-5 text-left font-medium text-lg hover:bg-gray-50 transition"
+                    aria-controls="systemRequirement" aria-expanded="false">
+                        <span class="font-semibold text-base">What are the system requirements for ComputeLite?</span>
+                        <span class="ml-4 text-xl font-bold">+</span>
+                    </button>
+                    <div class="bc-accordion-panel p-5 text-gray-700" id="systemRequirement" hidden>
+                        <p>ComputeLite runs in any modern browser (e.g., Chrome, Firefox, Edge, or Safari). There’s no need to install software or extensions—just open the app in your browser and start working.</p>
                     </div>
-    
                 </div>
-                <div class="accordion-item border-light mb-0">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#serverBased" aria-controls="serverBased">
-                            <span class="h6 mb-0 font-weight-bold">How is ComputeLite different from traditional server-based apps?</span>
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" id="serverBased" data-bs-parent="#accordionGroup">
-                        <div class="accordion-body">
-                            <p>Unlike traditional apps:</p>
-                            <p class="ms-4">• ComputeLite does <b>not rely on servers</b>—all operations are handled locally.</p>
-                            <p class="ms-4">• Your data is never sent over the internet unless you choose to export or share it.</p>
-                            <p class="ms-4">• ComputeLite prioritizes privacy, speed, and offline functionality.</p>
-                         
-                        </div>
+
+                <div class="shadow-md bg-white text-gray-900 overflow-hidden border-t">
+                    <button 
+                    class="bc-accordion-trigger cursor-pointer w-full flex justify-between items-center px-6 py-5 text-left font-medium text-lg hover:bg-gray-50 transition"
+                    aria-controls="serverBased" aria-expanded="false">
+                        <span class="font-semibold text-base">How is ComputeLite different from traditional server-based apps?</span>
+                        <span class="ml-4 text-xl font-bold">+</span>
+                    </button>
+                    <div class="bc-accordion-panel p-5 text-gray-700" id="serverBased" hidden>
+                        <p>Unlike traditional apps:</p>
+                        <p class="ms-4">• ComputeLite does <b>not rely on servers</b>—all operations are handled locally.</p>
+                        <p class="ms-4">• Your data is never sent over the internet unless you choose to export or share it.</p>
+                        <p class="ms-4">• ComputeLite prioritizes privacy, speed, and offline functionality.</p>
                     </div>
-    
                 </div>
-                <div class="accordion-item border-light mb-0">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#freeUse" aria-controls="freeUse">
-                            <span class="h6 mb-0 font-weight-bold">Is ComputeLite free to use?</span>
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" id="freeUse" data-bs-parent="#accordionGroup">
-                        <div class="accordion-body">
-                            <p>Yes, ComputeLite is free to use. There are no hidden fees, subscriptions, or server costs since everything runs locally in your browser.</p>
-                        </div>
+
+                <div class="shadow-md bg-white text-gray-900 overflow-hidden border-t">
+                    <button 
+                    class="bc-accordion-trigger cursor-pointer w-full flex justify-between items-center px-6 py-5 text-left font-medium text-lg hover:bg-gray-50 transition"
+                    aria-controls="freeUse" aria-expanded="false">
+                        <span class="font-semibold text-base">Is ComputeLite free to use?</span>
+                        <span class="ml-4 text-xl font-bold">+</span>
+                    </button>
+                    <div class="bc-accordion-panel p-5 text-gray-700" id="freeUse" hidden>
+                        <p>Yes, ComputeLite is free to use. There are no hidden fees, subscriptions, or server costs since everything runs locally in your browser.</p>
                     </div>
-    
                 </div>
-                <div class="accordion-item border-light mb-0">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" aria-expanded="false" data-bs-target="#trackingCookies" aria-controls="trackingCookies">
-                            <span class="h6 mb-0 font-weight-bold">Do you use any third-party tracking cookies?</span>
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" id="trackingCookies" data-bs-parent="#accordionGroup">
-                        <div class="accordion-body">
-                            <p>No, ComputeLite does not use any third-party tracking cookies. Since it is a static, serverless app, no user activity is tracked or shared with external entities. Your privacy is a core priority, and all operations are confined to your browser.</p>
-                        </div>
+                <div class="shadow-md bg-white text-gray-900 overflow-hidden rounded-b-md border-t">
+                    <button 
+                    class="bc-accordion-trigger cursor-pointer w-full flex justify-between items-center px-6 py-5 text-left font-medium text-lg hover:bg-gray-50 transition"
+                    aria-controls="trackingCookies" aria-expanded="false">
+                        <span class="font-semibold text-base">Do you use any third-party tracking cookies?</span>
+                        <span class="ml-4 text-xl font-bold">+</span>
+                    </button>
+                    <div class="bc-accordion-panel p-5 text-gray-700" id="trackingCookies" hidden>
+                        <p>No, ComputeLite does not use any third-party tracking cookies. Since it is a static, serverless app, no user activity is tracked or shared with external entities. Your privacy is a core priority, and all operations are confined to your browser.</p>
                     </div>
-    
+                </div>
+
+                <!-- Repeat same structure for other items... -->
                 </div>
             </div>
-        </div>
-        
-        
     </section>
 
 
     
 
     <section class="tool-features hero" id="features">
-        <div class="">
-            <h2 class="text-white font-weight-large">Community</h2>
-            <p class="lead">Join our community for the latest updates, roadmap insights, and discussions on the future of Compute Lite..</p>
-            <div class="row">
-                <div class="col-md-3">
+        <div>
+            <h2 class="text-white font-bold text-3xl mb-4">Community</h2>
+            <p class="lead mb-8">Join our community for the latest updates, roadmap insights, and discussions on the future of Compute Lite.</p>
+            <div class="flex flex-wrap gap-6">
+                <div class="w-full sm:w-1/2 md:w-1/5">
                     <a href="https://github.com/computelite/computelite" target="_blank">
-                        <div class="feature-card p-4 bg-transparent rounded shadow text-center">
-                            <i class="fas fa-brands fa-github fa-3x mb-3 text-white"></i>
-                            <h3 class="text-white">Github</h3>
+                        <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
+                            <i class="fa-brands fa-github fa-3x mb-3 text-white"></i>
+                            <h3 class="text-white text-lg font-semibold">Github</h3>
                         </div>
                     </a>
-                    
                 </div>
-                <div class="col-md-3">
+                <div class="w-full sm:w-1/2 md:w-1/5">
                     <a href="https://www.youtube.com/channel/UCbow7ND3jqDBOZCRzpo9NGA" target="_blank">
-                        <div class="feature-card p-4 bg-transparent rounded shadow text-center">
-                            <i class="fas fa-brands fa-youtube fa-3x mb-3 text-white"></i>
-                            <h3 class="text-white">Youtube</h3>
+                        <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
+                            <i class="fa-brands fa-youtube fa-3x mb-3 text-white"></i>
+                            <h3 class="text-white text-lg font-semibold">Youtube</h3>
                         </div>
                     </a>
-                    
                 </div>
-                <div class="col-md-3">
+                <div class="w-full sm:w-1/2 md:w-1/5">
                     <a href="https://groups.google.com/g/computelite" target="_blank">
-                        <div class="feature-card p-4 bg-transparent rounded shadow text-center">
-                            <i class="fas fa-user-group fa-3x mb-3 text-white"></i>
-                            <h3 class="text-white">Google Groups</h3>
+                        <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
+                            <i class="fa-solid fa-user-group fa-3x mb-3 text-white"></i>
+                            <h3 class="text-white text-lg font-semibold">Google Groups</h3>
                         </div>
                     </a>
-                    
                 </div>
-                <div class="col-md-3">
+                <div class="w-full sm:w-1/2 md:w-1/5">
                     <a href="https://docs.computelite.com" target="_blank">
-                        <div class="feature-card p-4 bg-transparent rounded shadow text-center">
-                            <i class="fas fa-book fa-3x mb-3 text-white"></i>
-                            <h3 class="text-white">Docs</h3>
+                        <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
+                            <i class="fa-solid fa-book fa-3x mb-3 text-white"></i>
+                            <h3 class="text-white text-lg font-semibold">Docs</h3>
                         </div>
                     </a>
-                    
                 </div>
-                
             </div>
         </div>
     </section>

@@ -133,14 +133,14 @@ function get_table_headers(header_rows) {
 
         // --- Input
         const input_tag = get_cl_element("input",
-            "flex-1 px-2 py-1 text-sm rounded-l-md border border-gray-300 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-400/50 focus:shadow-md",
+            "form-ctrl flex-1 px-2 py-1 text-sm rounded-l-md border border-gray-300 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-400/50 focus:shadow-md",
             null, null)
         input_tag.type = "text"
         dropdown_menu.appendChild(input_tag)
 
         // --- Toggle button
         const toggle_btn = get_cl_element("button",
-            "btn-sm-outline py-2 px-1 rounded-r-md rounded-l-none", null,
+            "group-text btn-sm-outline py-2 px-1 rounded-r-md rounded-l-none", null,
             get_cl_element("span", "fas fa-chevron-down text-xs", null, null))
         toggle_btn.type = "button"
         toggle_btn.setAttribute("aria-haspopup", "menu")
@@ -642,11 +642,11 @@ function reload_table_data() {
         document.getElementById("selectAll").checked = false
     }
     get_table_data(col_names, 1)
-    for (let cn of table_el.querySelectorAll(".lovRow input.form-control")) {
+    for (let cn of table_el.querySelectorAll(".lovRow input.form-ctrl")) {
         cn.value = ""
     }
     const tbl = table_el.querySelector("thead")
-    let span = tbl.querySelectorAll("span.input-group-text")
+    let span = tbl.querySelectorAll("button.group-text")
     for(let filter of span){
         if(filter.childNodes[1]){
             filter.removeChild(filter.childNodes[0])
@@ -1170,7 +1170,7 @@ function get_table_row(row, selected_idx, select_all = false, page_num = 1) {
     for (const [idx, val] of row.entries()) {
         if (primary_column && idx == 0) {
             // ✅ Basecoat UI styled checkbox
-            let input_el = get_cl_element("input", "form-check-input");
+            let input_el = get_cl_element("input", "input");
             input_el.setAttribute("type", "checkbox");
 
             if (select_all) {
@@ -1841,7 +1841,7 @@ function add_insert_row() {
                     for (let cn of this.parentNode.parentNode.childNodes) {
                         let inp_el = cn.firstChild
                         if (inp_el) {
-                            if (inp_el.classList.contains("form-control")) {
+                            if (inp_el.classList.contains("form-ctrl")) {
                                 inp_el.value = ""
                             }
                         }
