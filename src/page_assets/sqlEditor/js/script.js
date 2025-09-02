@@ -9,702 +9,601 @@ import 'codemirror/theme/yonce.css';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/sql/sql.js';
 
-const page_element = document.getElementById("currentPage")
-const table_el = document.getElementById("editortableDiv")
-        
-var primary_column = false
-var where_in = new Object
-var where_not_in = new Object
-var like_query = new Object
-var sort_columns = []
-var column_formatters = new Object
-let col_name_types = {}
-var editable_flag
-var currentPage = 1
-var col_names
+const page_element = document.getElementById("currentPage");
+const table_el = document.getElementById("editortableDiv");
 
-var initial_row_values = []
-var current_row_id = 0
-let view_query;
-var sort_col_names = {};
-const params = new URLSearchParams(window.location.search)
-
+let primary_column = false;
+let where_in = {};
+let where_not_in = {};
+let like_query = {};
+let sort_columns = [];
+let column_formatters = {};
+let col_name_types = {};
+let editable_flag = false;
+let currentPage = 1;
+let col_names = [];
+let initial_row_values = [];
+let current_row_id = 0;
+let view_query = "";
+let sort_col_names = {};
+const params = new URLSearchParams(window.location.search);
 const modelName = params.get('modelName');
 const tableName = params.get('tableName');
-if (tableName){
-    document.title = tableName
-}
-
+if (tableName) document.title = tableName;
 let dt_picker = null;
 
-var editor = CodeMirror.fromTextArea(document.getElementById("editorText"), {
+// --- CodeMirror Editor ---
+const editor = CodeMirror.fromTextArea(document.getElementById("editorText"), {
     lineNumbers: true,
-    lineWrapping:true,
+    lineWrapping: true,
     mode: "text/x-sqlite",
-    theme:"yonce",
-    autoRefresh:true,
-    autofocus:true,
+    theme: "yonce",
+    autoRefresh: true,
+    autofocus: true,
 });
 
-document.addEventListener("DOMContentLoaded", async function() {
-    let result = await executeQuery('init')
-    if (result && result.msg == 'Success'){
-        await init()
+document.addEventListener("DOMContentLoaded", async () => {
+    const result = await executeQuery('init');
+    if (result && result.msg === 'Success') {
+        await init();
     }
 
-    // const modalElements = document.querySelectorAll('.modal');
-    // modalElements.forEach(modalElement => {
-    //     if (!bootstrap.Modal.getInstance(modalElement)) {
-    //     new bootstrap.Modal(modalElement);
-    //     }
-    // });
+    document.getElementById('editorButton').onclick = get_editor;
 
-    document.getElementById('editorButton').onclick = get_editor
-
-
-    document.querySelectorAll('.dropdown-menu input[type="text"]').forEach(inp => {
-        inp.addEventListener('keydown', function(e) {
-
+    // Prevent dropdown menu input from submitting forms or toggling dropdown on Enter
+    document.querySelectorAll('.dropdown-menu input[type="text"]').forEach(input => {
+        input.addEventListener('keydown', e => {
             if (e.key === 'Enter') {
-                e.stopPropagation();  // prevent dropdown toggle
-                e.preventDefault();   // optional, prevents form submission
+                e.preventDefault();
+                e.stopPropagation();
             }
         });
     });
-
-
-})
+});
 
 async function init() {
-    document.getElementById("sidebarBtn").onclick = hide_sidebar
-    document.getElementById("editor-button").onclick = run_editor_query
-    
-    await get_table_rows()    
+    document.getElementById("sidebarBtn").onclick = hide_sidebar;
+    document.getElementById("editor-button").onclick = run_editor_query;
 
-    const result = await gm.fetchTableFormatter(modelName,tableName)
-    
+    await get_table_rows();
+
+    const result = await gm.fetchTableFormatter(modelName, tableName);
+
     column_formatters = result[0][0];
-    if (result[0][1]){
-        document.getElementById("viewQuery").classList.remove("hidden")
-        document.getElementById("queryInput").value = result[0][1]
-        view_query = result[0][1]
+    if (result[0][1]) {
+        document.getElementById("viewQuery").classList.remove("hidden");
+        document.getElementById("queryInput").value = result[0][1];
+        view_query = result[0][1];
     }
-    if (result[1]) {
-        editable_flag = true
-        table_el.classList.add("no_user_select")
+    editable_flag = !!result[1];
+    if (editable_flag) {
+        table_el.classList.add("no_user_select");
     }
     await get_sort();
     await get_columns();
-    if (!editable_flag) {  
-        document.getElementById("multiUpdate").style.display = "none"
+    if (!editable_flag) {
+        document.getElementById("multiUpdate").style.display = "none";
     }
 }
 
-async function get_sort(){    
-    let data = await gm.fetchSort(modelName,tableName)    
-    sort_columns = data
-    for (let sc of data){
-        sort_col_names[sc[0]] = sc[1]
-    }
-
+async function get_sort() {
+    const data = await gm.fetchSort(modelName, tableName);
+    sort_columns = [...data];
+    sort_col_names = {};
+    data.forEach(([col, dir]) => {
+        sort_col_names[col] = dir;
+    });
 }
 
-function get_table_headers(header_rows) {
-    update_column_formatters(header_rows)
-    col_names = header_rows.reduce((a, b) => a.concat(b[0]), []);
-    if (header_rows[0][1].toLowerCase() == "primary") {
-        primary_column = true
-    }
-    get_table_data(col_names)
+async function get_table_headers(header_rows) {
+    await update_column_formatters(header_rows);
+    col_names = header_rows.map(h => h[0]);
+    primary_column = header_rows[0][1].toLowerCase() === "primary";
+    get_table_data(col_names);
 
-    const tbl = table_el.querySelector("thead")
-    tbl.innerHTML = ""
+    const tbl = table_el.querySelector("thead");
+    tbl.innerHTML = "";
 
-    const tr1 = get_cl_element("tr", "headers border-r", null, null)
-    const tr2 = get_cl_element("tr", "lovRow border-r", null, null)
+    const tr1 = get_cl_element("tr", "headers border-r");
+    const tr2 = get_cl_element("tr", "lovRow border-r");
 
-    for (let hd of header_rows) {
-        col_name_types[hd[0]] = hd[1]
-        let th = get_cl_element("th", null, null, null)
-        th.setAttribute("nowrap", "")
+    for (let i = 0; i < header_rows.length; i++) {
+        const [col_name, col_type, is_not_null] = header_rows[i];
+        col_name_types[col_name] = col_type;
+        let th = get_cl_element("th");
+        th.setAttribute("nowrap", "");
 
-        // --- Dropdown wrapper
-        const dropdown_menu = get_cl_element("div", "dropdown-menu flex", null, null)
-
-        // --- Input
+        // Dropdown menu
+        const dropdown_menu = get_cl_element("div", "dropdown-menu flex");
         const input_tag = get_cl_element("input",
-            "form-ctrl flex-1 px-2 py-1 text-sm rounded-l-md border border-gray-300 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-400/50 focus:shadow-md",
-            null, null)
-        input_tag.type = "text"
-        dropdown_menu.appendChild(input_tag)
+            "form-ctrl flex-1 px-2 py-1 text-sm rounded-l-md border border-gray-300 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-400/50 focus:shadow-md");
+        input_tag.type = "text";
+        dropdown_menu.appendChild(input_tag);
 
-        // --- Toggle button
         const toggle_btn = get_cl_element("button",
-            "group-text btn-sm-outline py-2 px-1 rounded-r-md rounded-l-none", null,
-            get_cl_element("span", "fas fa-chevron-down text-xs", null, null))
-        toggle_btn.type = "button"
-        toggle_btn.setAttribute("aria-haspopup", "menu")
-        toggle_btn.setAttribute("aria-expanded", "false")
-        toggle_btn.setAttribute("aria-controls", "demo-dropdown-menu-menu")
-        dropdown_menu.appendChild(toggle_btn)
+            "group-text btn-sm-outline py-2 px-1 rounded-r-md rounded-l-none",
+            null, get_cl_element("span", "fas fa-chevron-down text-xs"));
+        toggle_btn.type = "button";
+        toggle_btn.setAttribute("aria-haspopup", "menu");
+        toggle_btn.setAttribute("aria-expanded", "false");
+        toggle_btn.setAttribute("aria-controls", "demo-dropdown-menu-menu");
+        dropdown_menu.appendChild(toggle_btn);
 
-        // --- Dropdown container
-        const dropdown = get_cl_element("div", "min-w-56", null, null)
-        dropdown.setAttribute("data-popover", "")
-        dropdown.setAttribute("aria-hidden", "true")
+        const dropdown = get_cl_element("div", "min-w-56");
+        dropdown.setAttribute("data-popover", "");
+        dropdown.setAttribute("aria-hidden", "true");
 
-        const role_menu = get_cl_element("div", null, null, null)
-        role_menu.setAttribute("role", "menu")
-        role_menu.setAttribute("aria-labelledby", "demo-dropdown-menu-trigger")
+        const role_menu = get_cl_element("div");
+        role_menu.setAttribute("role", "menu");
+        role_menu.setAttribute("aria-labelledby", "demo-dropdown-menu-trigger");
 
-        // --- Select All
         const select_all_label = get_cl_element("label",
             "flex items-center px-2 py-1 cursor-pointer hover:bg-gray-100 rounded",
-            null,
-            get_cl_element("input", "mr-2 input", null, null))
-        select_all_label.querySelector("input").type = "checkbox"
-        select_all_label.appendChild(document.createTextNode("Select All"))
-        role_menu.appendChild(select_all_label)
+            null, get_cl_element("input", "mr-2 input"));
+        select_all_label.querySelector("input").type = "checkbox";
+        select_all_label.appendChild(document.createTextNode("Select All"));
+        role_menu.appendChild(select_all_label);
 
-        // Divider
-        role_menu.appendChild(get_cl_element("div", "border-t my-2"))
+        role_menu.appendChild(get_cl_element("div", "border-t my-2"));
 
-        // Values container
-        const lov_container = get_cl_element("div", "lov-values max-h-40 overflow-y-auto space-y-1 grid")
-        role_menu.appendChild(lov_container)
+        const lov_container = get_cl_element("div", "lov-values max-h-40 overflow-y-auto space-y-1 grid");
+        role_menu.appendChild(lov_container);
 
-        // Divider
-        role_menu.appendChild(get_cl_element("div", "border-t my-2"))
+        role_menu.appendChild(get_cl_element("div", "border-t my-2"));
 
-        // Buttons
-        const btn_wrapper = get_cl_element("div", "flex justify-between p-1", null, null)
-        const ter_button = get_cl_element("button", "btn-secondary btn-sm", null, document.createTextNode("CLEAR"))
-        const prim_button = get_cl_element("button", "btn-primary btn-sm ml-auto", null, document.createTextNode("OK"))
-        prim_button.type = "button"
-        ter_button.type = "button"
-        btn_wrapper.appendChild(ter_button)
-        btn_wrapper.appendChild(prim_button)
-        role_menu.appendChild(btn_wrapper)
+        const btn_wrapper = get_cl_element("div", "flex justify-between p-1");
+        const ter_button = get_cl_element("button", "btn-secondary btn-sm", null, document.createTextNode("CLEAR"));
+        const prim_button = get_cl_element("button", "btn-primary btn-sm ml-auto", null, document.createTextNode("OK"));
+        prim_button.type = "button";
+        ter_button.type = "button";
+        btn_wrapper.appendChild(ter_button);
+        btn_wrapper.appendChild(prim_button);
+        role_menu.appendChild(btn_wrapper);
 
-        dropdown.appendChild(role_menu)
-        dropdown_menu.appendChild(dropdown)
+        dropdown.appendChild(role_menu);
+        dropdown_menu.appendChild(dropdown);
 
-        const th2 = get_cl_element("th", null, null, dropdown_menu)
+        const th2 = get_cl_element("th", null, null, dropdown_menu);
 
-        // === NEW: Async LOV fetch on toggle ===
+        // LOV fetch on toggle
         toggle_btn.addEventListener("click", async function () {
-            // toggle dropdown
-            
-            const isHidden = dropdown.getAttribute("aria-hidden") === "true"
-            dropdown.setAttribute("aria-hidden", !isHidden)
-            
+            const isHidden = dropdown.getAttribute("aria-hidden") === "true";
+            dropdown.setAttribute("aria-hidden", (!isHidden).toString());
             if (isHidden) {
-                const lov_div = th2.querySelector("div.lov-values")
-                if (!(hd[0] in where_in)) {
-                    where_in[hd[0]] = []
+                const lov_div = th2.querySelector("div.lov-values");
+                if (!(col_name in where_in)) where_in[col_name] = [];
+                if (!(col_name in where_not_in)) where_not_in[col_name] = [];
+                if (where_in[col_name].length === 0 && where_not_in[col_name].length === 0) {
+                    lov_div.parentNode.querySelector("input").checked = true;
                 }
-                if (!(hd[0] in where_not_in)) {
-                    where_not_in[hd[0]] = []
-                }
-                if (where_in[hd[0]].length == 0 && where_not_in[hd[0]].length == 0) {
-                    lov_div.parentNode.querySelector("input").checked = true
-                }
-                lov_div.innerHTML = ""
-                let temp_where_in = Object.assign({},where_in)
-                let temp_where_not_in = Object.assign({},where_not_in)
-                delete temp_where_in[hd[0]]
-                delete temp_where_not_in[hd[0]]
-                document.getElementById("data-loader").style.display = ""
-                
-                const result = await gm.fetchTableData(modelName,tableName,[hd[0]],temp_where_in,temp_where_not_in,like_query,1,[],true,true)
-                
-                document.getElementById("data-loader").style.display = "none"
-                const total_len = result[0].length
+                lov_div.innerHTML = "";
+                let temp_where_in = { ...where_in };
+                let temp_where_not_in = { ...where_not_in };
+                delete temp_where_in[col_name];
+                delete temp_where_not_in[col_name];
+                document.getElementById("data-loader").style.display = "";
+                const result = await gm.fetchTableData(modelName, tableName, [col_name], temp_where_in, temp_where_not_in, like_query, 1, [], true, true);
+                document.getElementById("data-loader").style.display = "none";
+                const total_len = result[0].length;
                 for (let col_value of result[0]) {
                     let el = get_cl_element("a", "flex items-center px-2 py-0.5 cursor-pointer hover:bg-gray-100 rounded", null,
-                        get_cl_element("input", "input mr-2", null, null))
-                    el.firstChild.setAttribute("type", "checkbox")
-                    if (where_in[hd[0]].length > 0) {
-                        if(col_value[0]!==null){
-                            if (where_in[hd[0]].indexOf(col_value[0].toString()) > -1) {
-                                el.firstChild.checked = true
-                            }
-                        }else if (where_in[hd[0]].indexOf("null") > -1) {
-                            el.firstChild.checked = true
-                        }
-                    } else if (where_not_in[hd[0]].length > 0) {
-                        if(col_value[0]!==null){
-                            if (where_not_in[hd[0]].indexOf(col_value[0].toString()) == -1) {
-                                el.firstChild.checked = true
-                            }
-                        }else if (where_not_in[hd[0]].indexOf("null") == -1) {                            
-                            el.firstChild.checked = true                            
-                        }
+                        get_cl_element("input", "input mr-2"));
+                    el.firstChild.setAttribute("type", "checkbox");
+                    if (where_in[col_name].length > 0) {
+                        if (col_value[0] !== null) {
+                            if (where_in[col_name].includes(col_value[0].toString())) el.firstChild.checked = true;
+                        } else if (where_in[col_name].includes("null")) el.firstChild.checked = true;
+                    } else if (where_not_in[col_name].length > 0) {
+                        if (col_value[0] !== null) {
+                            if (!where_not_in[col_name].includes(col_value[0].toString())) el.firstChild.checked = true;
+                        } else if (!where_not_in[col_name].includes("null")) el.firstChild.checked = true;
                     } else {
-                        el.firstChild.checked = true
+                        el.firstChild.checked = true;
                     }
-                    el.appendChild(get_cl_element("label", "label", null,
-                        document.createTextNode(col_value[0])))
-                    el.querySelector('label').setAttribute('value',col_value[0])
-                    lov_div.appendChild(el)
-                    el.firstChild.onchange= function (e) {
+                    el.appendChild(get_cl_element("label", "label", null, document.createTextNode(col_value[0])));
+                    el.querySelector('label').setAttribute('value', col_value[0]);
+                    lov_div.appendChild(el);
+                    el.firstChild.onchange = function () {
                         if (!el.firstChild.checked && lov_div.parentNode.querySelector("input").checked) {
-                            lov_div.parentNode.querySelector("input").checked = false
+                            lov_div.parentNode.querySelector("input").checked = false;
                         } else if (el.firstChild.checked && !lov_div.parentNode.querySelector("input").checked) {
-                            const ct = lov_div.querySelectorAll("input:checked").length
-                            if (ct == total_len) {
-                                lov_div.parentNode.querySelector("input").checked = true
-                            }
+                            const ct = lov_div.querySelectorAll("input:checked").length;
+                            if (ct === total_len) lov_div.parentNode.querySelector("input").checked = true;
                         }
-                    }
+                    };
                 }
-
-                const ct = lov_div.querySelectorAll("input:checked").length
-                if (ct == total_len) {
-                    lov_div.parentNode.querySelector("input").checked = true
-                }
+                const ct = lov_div.querySelectorAll("input:checked").length;
+                if (ct === total_len) lov_div.parentNode.querySelector("input").checked = true;
             }
-        })
+        });
 
-        // === NEW: Select All propagation ===
         select_all_label.querySelector("input").addEventListener("change", function (e) {
             lov_container.querySelectorAll("input[type=checkbox]").forEach(cb => {
-                cb.checked = e.target.checked
-            })
-        })
+                cb.checked = e.target.checked;
+            });
+        });
 
-        // === NEW: Keyboard navigation in dropdown ===
         input_tag.addEventListener("keydown", function (e) {
-            const dropdown = this.nextElementSibling
-            const dropdown_el = dropdown.nextElementSibling
-            
+            const dropdown_el = dropdown_menu.querySelector("div.min-w-56");
             if (dropdown_el.getAttribute("aria-hidden") === "false") {
-                if (e.keyCode == "27") {
-                    const isHidden = dropdown_el.getAttribute("aria-hidden") === "true"
-                    dropdown_el.setAttribute("aria-hidden", !isHidden)
-                } else if (e.keyCode == "40") {
-                    let current_el = dropdown_el.querySelector("a.selected")
+                if (e.keyCode === 27) {
+                    dropdown_el.setAttribute("aria-hidden", "true");
+                } else if (e.keyCode === 40) {
+                    let current_el = dropdown_el.querySelector("a.selected");
                     if (current_el) {
-                        if (current_el.parentNode.tagName == 'FORM') {
-                            const next_el = dropdown_el.querySelector("div.lov-values a")
-                            if (next_el) {
-                                current_el.classList.remove("selected")
-                                next_el.classList.add("selected")
-                            }
-                        } else {
-                            const next_el = current_el.nextElementSibling
-                            if (next_el) {
-                                current_el.classList.remove("selected")
-                                next_el.classList.add("selected")
-                            }
+                        const next_el = current_el.nextElementSibling;
+                        if (next_el) {
+                            current_el.classList.remove("selected");
+                            next_el.classList.add("selected");
                         }
-
                     } else {
-                        dropdown_el.querySelector("a.dropdown-item").classList.add("selected")
+                        const first = dropdown_el.querySelector("a");
+                        if (first) first.classList.add("selected");
                     }
-                } else if (e.keyCode == "38") {
-                    let current_el = dropdown_el.querySelector("a.selected")
+                } else if (e.keyCode === 38) {
+                    let current_el = dropdown_el.querySelector("a.selected");
                     if (current_el) {
-                        if (current_el.parentNode.tagName == 'FORM') {
-
-                        } else {
-                            const prev_el = current_el.previousElementSibling
-                            if (prev_el) {
-                                current_el.classList.remove("selected")
-                                prev_el.classList.add("selected")
-                            } else {
-                                current_el.classList.remove("selected")
-                                dropdown_el.firstChild.firstChild.classList.add("selected")
-                            }
+                        const prev_el = current_el.previousElementSibling;
+                        if (prev_el) {
+                            current_el.classList.remove("selected");
+                            prev_el.classList.add("selected");
                         }
-
                     }
-                } else if (e.keyCode == "32") {
-                    let current_el = dropdown_el.querySelector("a.selected")
-                    current_el.firstChild.click()
-                    e.preventDefault()
-                } if (e.key === "Enter") {
-                    submit_lov_button(th2, hd[0])
-                    const isHidden = dropdown_el.getAttribute("aria-hidden") === "true"
-                    dropdown_el.setAttribute("aria-hidden", !isHidden)
-                    dropdown_el.querySelector("a.dropdown-item").classList.add("selected")
-                    e.preventDefault()
+                } else if (e.keyCode === 32) {
+                    let current_el = dropdown_el.querySelector("a.selected");
+                    if (current_el) current_el.firstChild.click();
+                    e.preventDefault();
+                } else if (e.key === "Enter") {
+                    submit_lov_button(th2, col_name);
+                    dropdown_el.setAttribute("aria-hidden", "true");
+                    const first = dropdown_el.querySelector("a");
+                    if (first) first.classList.add("selected");
+                    e.preventDefault();
                 }
-                return false
+                return false;
             } else if (e.key === "Enter") {
-                let reload_flag = update_like_object()
-                if (reload_flag) {
-                    get_table_data(col_names)
-                }
-                return false
-            } else if (e.altKey && e.keyCode == "40") {
-                const isHidden = dropdown_el.getAttribute("aria-hidden") === "true"
-                dropdown_el.setAttribute("aria-hidden", !isHidden)
-                dropdown_el.querySelector("a.dropdown-item").classList.add("selected")
-                return false
+                let reload_flag = update_like_object();
+                if (reload_flag) get_table_data(col_names);
+                return false;
+            } else if (e.altKey && e.keyCode === 40) {
+                dropdown_el.setAttribute("aria-hidden", "false");
+                const first = dropdown_el.querySelector("a");
+                if (first) first.classList.add("selected");
+                return false;
             }
+        });
 
-        })
-
-        // --- Ok button: filter icon toggle
         prim_button.addEventListener("mousedown", function () {
-            let ct = th2.querySelectorAll("div.lov-values input:checked").length
-            let total_len = th2.querySelectorAll("div.lov-values input").length
+            let ct = th2.querySelectorAll("div.lov-values input:checked").length;
+            let total_len = th2.querySelectorAll("div.lov-values input").length;
             setTimeout(function () {
-                // const icon = toggle_btn.querySelector("span")
-                if(ct==total_len){
-                    if(toggle_btn.childNodes[1]){
-                        toggle_btn.removeChild(toggle_btn.childNodes[0])
-                        toggle_btn.firstChild.style = ""
+                if (ct === total_len) {
+                    if (toggle_btn.childNodes[1]) {
+                        toggle_btn.removeChild(toggle_btn.childNodes[0]);
+                        toggle_btn.firstChild.style = "";
                     }
-                }else{         
-                    if(!ct==0){
-                        if(!(toggle_btn.childNodes[1])){
-                            toggle_btn.firstChild.style ="position:relative;"
-                            toggle_btn.classList.add("p-1")
-                            toggle_btn.insertBefore(get_cl_element('span','fas fa-filter'), toggle_btn.childNodes[0]);
-                        }
+                } else if (ct !== 0) {
+                    if (!toggle_btn.childNodes[1]) {
+                        toggle_btn.firstChild.style = "position:relative;";
+                        toggle_btn.classList.add("p-1");
+                        toggle_btn.insertBefore(get_cl_element('span', 'fas fa-filter'), toggle_btn.childNodes[0]);
                     }
                 }
             }, 600);
-            submit_lov_button(th2, hd[0])
-            dropdown.setAttribute("aria-hidden","true")
-            toggle_btn.setAttribute("aria-expanded","false")
-        })
+            submit_lov_button(th2, col_name);
+            dropdown.setAttribute("aria-hidden", "true");
+            toggle_btn.setAttribute("aria-expanded", "false");
+        });
 
-        // --- Clear button
         ter_button.addEventListener("mousedown", function () {
-            let flag = false
-            if (where_in[hd[0]].length > 0) {
-                flag = true
-                where_in[hd[0]] = []
-            } else if (where_not_in[hd[0]].length > 0) {
-                flag = true
-                where_not_in[hd[0]] = []
+            let flag = false;
+            if (where_in[col_name].length > 0) {
+                flag = true;
+                where_in[col_name] = [];
+            } else if (where_not_in[col_name].length > 0) {
+                flag = true;
+                where_not_in[col_name] = [];
             }
-            if (flag) {
-                get_table_data(col_names)
-            }
+            if (flag) get_table_data(col_names);
             setTimeout(function () {
-                const icon = toggle_btn.querySelector("span")
-                if(icon.childNodes[1]){
-                    icon.removeChild(span.childNodes[0])
-                    icon.firstChild.style = ""
+                if (toggle_btn.childNodes[1]) {
+                    toggle_btn.removeChild(toggle_btn.childNodes[0]);
+                    toggle_btn.firstChild.style = "";
                 }
             }, 200);
-            dropdown.setAttribute("aria-hidden", "true")
-            toggle_btn.setAttribute("aria-expanded","false")
-        })
+            dropdown.setAttribute("aria-hidden", "true");
+            toggle_btn.setAttribute("aria-expanded", "false");
+        });
 
-        // --- Column type handling (same as your old code) ...
-        if (primary_column && header_rows.indexOf(hd) == 0) {
-            let el = get_cl_element("input", "form-check-input", "selectAll", null)
-            el.type = "checkbox"
-            th.appendChild(el)
-            th.id = hd[0]
-            tr2.appendChild(get_cl_element("th", null, null, null))
+        if (primary_column && i === 0) {
+            let el = get_cl_element("input", "form-check-input", "selectAll");
+            el.type = "checkbox";
+            th.appendChild(el);
+            th.id = col_name;
+            tr2.appendChild(get_cl_element("th"));
             el.onchange = function () {
                 for (let tr of table_el.querySelectorAll("tbody tr")) {
                     if (tr.firstChild.firstChild) {
-                        tr.firstChild.firstChild.checked = el.checked
+                        tr.firstChild.firstChild.checked = el.checked;
                     }
                 }
-            }
-        } else if (hd[2] == 1) {
-            th.classList.add("min-width", "font-semibold")
-            let el = get_cl_element("u", null, null, document.createTextNode(hd[0]))
-            el.appendChild(get_cl_element("span", "fa fa-sort", null, null))
-            th.appendChild(el)
-            tr2.appendChild(th2)
+            };
+        } else if (is_not_null === 1) {
+            th.classList.add("min-width", "font-semibold");
+            let el = get_cl_element("u", null, null, document.createTextNode(col_name));
+            el.appendChild(get_cl_element("span", "fa fa-sort"));
+            th.appendChild(el);
+            tr2.appendChild(th2);
         } else {
-            th.classList.add("min-width", "font-semibold")
-            th.appendChild(document.createTextNode(hd[0]))
-            th.appendChild(get_cl_element("span", "fa fa-sort", null, null))
-            tr2.appendChild(th2)
+            th.classList.add("min-width", "font-semibold");
+            th.appendChild(document.createTextNode(col_name));
+            th.appendChild(get_cl_element("span", "fa fa-sort"));
+            tr2.appendChild(th2);
         }
 
-        // --- Sorting
-        const sort_el = th.querySelector("span.fa-sort")
+        const sort_el = th.querySelector("span.fa-sort");
         if (sort_el) {
             sort_el.addEventListener('click', function () {
-                const sort_cols = sort_columns.reduce((a, b) => a.concat(b[0]), []);
-                let idx = sort_cols.indexOf(hd[0])
-                if (idx < 0) idx = sort_cols.length
+                const sort_cols = sort_columns.map(s => s[0]);
+                let idx = sort_cols.indexOf(col_name);
+                if (idx < 0) idx = sort_cols.length;
                 if (this.classList.contains("fa-sort-down")) {
-                    sort_columns[idx] = [hd[0], "desc"]
-                    this.classList.remove("fa-sort-down")
-                    this.classList.add("fa-sort-up")
+                    sort_columns[idx] = [col_name, "desc"];
+                    this.classList.remove("fa-sort-down");
+                    this.classList.add("fa-sort-up");
                 } else {
-                    this.classList.remove("fa-sort-up")
-                    this.classList.remove("fa-sort")
-                    this.classList.add("fa-sort-down")
-                    sort_columns[idx] = [hd[0], "asc"]
+                    this.classList.remove("fa-sort-up");
+                    this.classList.remove("fa-sort");
+                    this.classList.add("fa-sort-down");
+                    sort_columns[idx] = [col_name, "asc"];
                 }
-                get_table_data(col_names)
-            })
+                get_table_data(col_names);
+            });
 
             th.addEventListener('click', function (e) {
-                if (e.target.classList.contains("fa")) {
-                    return false
+                if (e.target.classList.contains("fa")) return false;
+                const col_num = col_names.indexOf(this.firstChild.textContent);
+                if (this.classList.contains("selected_col")) {
+                    for (let tr of table_el.querySelectorAll("tr")) {
+                        tr.childNodes[col_num].classList.remove("selected_col");
+                    }
                 } else {
-                    const col_num = col_names.indexOf(this.firstChild.textContent)
-                    if (this.classList.contains("selected_col")) {
-                        for (let tr of table_el
-                            .querySelectorAll("tr")) {
-                            tr.childNodes[col_num].classList.remove("selected_col")
-                        }
-
-                    } else {
-                        const other_selected = this.parentNode.querySelector('.selected_col')
-                        if (other_selected) {
-                            const prev_col = col_names.indexOf(other_selected.firstChild.textContent)
-                            for (let tr of table_el
-                                .querySelectorAll("tr")) {
-                                tr.childNodes[prev_col].classList.remove("selected_col")
-                            }
-                        }
-                        for (let tr of table_el
-                            .querySelectorAll("tr")) {
-                            tr.childNodes[col_num].classList.add("selected_col")
+                    const other_selected = this.parentNode.querySelector('.selected_col');
+                    if (other_selected) {
+                        const prev_col = col_names.indexOf(other_selected.firstChild.textContent);
+                        for (let tr of table_el.querySelectorAll("tr")) {
+                            tr.childNodes[prev_col].classList.remove("selected_col");
                         }
                     }
+                    for (let tr of table_el.querySelectorAll("tr")) {
+                        tr.childNodes[col_num].classList.add("selected_col");
+                    }
                 }
-            })
+            });
         }
 
-        tr1.appendChild(th)
+        tr1.appendChild(th);
     }
 
-    tbl.appendChild(tr1)
-    tbl.appendChild(tr2)
+    tbl.appendChild(tr1);
+    tbl.appendChild(tr2);
 }
 
 
-async function get_table_data(col_names ,page_num = 1) {    
-    current_row_id = 0
-    initial_row_values = []
-    currentPage = page_num
-    let select_all = false
-    if (primary_column && document.getElementById("selectAll")) {
-        select_all = document.getElementById("selectAll").checked
+async function get_table_data(col_names, page_num = 1) {
+    current_row_id = 0;
+    initial_row_values = [];
+    currentPage = page_num;
+    let select_all = primary_column && document.getElementById("selectAll") && document.getElementById("selectAll").checked;
+
+    const selected_header = table_el.querySelector('thead .selected_col');
+    let selected_idx = selected_header ? col_names.indexOf(selected_header.firstChild.textContent) : 0;
+
+    document.getElementById("data-loader").style.display = "";
+
+    const data = await gm.fetchTableData(
+        modelName,
+        tableName,
+        col_names,
+        where_in,
+        where_not_in,
+        like_query,
+        page_num,
+        sort_columns
+    );
+
+    document.getElementById("data-loader").style.display = "none";
+    const tbl = table_el.querySelector("tbody");
+    tbl.innerHTML = "";
+
+    for (const row of data[0]) {
+        tbl.appendChild(get_table_row(row, selected_idx, select_all, page_num));
     }
 
-    const selected_header = table_el.querySelector('thead .selected_col')
-    let selected_idx = 0
-    if (selected_header) {
-        selected_idx = col_names.indexOf(selected_header.firstChild.textContent)
-    }
-    document.getElementById("data-loader").style.display = ""
-
-    const data = await gm.fetchTableData(modelName,tableName,col_names,where_in,where_not_in,like_query,page_num,sort_columns)
-    
-    document.getElementById("data-loader").style.display = "none"
-    const tbl = table_el.querySelector("tbody")
-    const total_len = data[0].length
-    tbl.innerHTML = ""
-    for (let row of data[0]) {
-        let tr = get_table_row(row, selected_idx, select_all, page_num)
-        tbl.appendChild(tr)
-    }
     if (editable_flag) {
-        tbl.appendChild(add_insert_row())
+        tbl.appendChild(add_insert_row());
     }
-    
-    if (total_len > -5) {
-        let tr = get_cl_element("tr", "footer")
-        for (let val of col_names) {
-            let td = document.createElement("td")
-            tr.appendChild(td)
-        }
-        tr.classList.add("hidden")
-        tbl.appendChild(tr)
 
+    if (data[0].length > -5) {
+        const tr = get_cl_element("tr", "footer");
+        for (let i = 0; i < col_names.length; i++) {
+            tr.appendChild(document.createElement("td"));
+        }
+        tr.classList.add("hidden");
+        tbl.appendChild(tr);
     }
-    let inner_text = ""
-    let rec_per_page = parseInt(sessionStorage.rec_limit)
-    let total_pages = ""
+
+    const rec_per_page = 1000;
+    let inner_text = "";
+    let total_pages = "";
+
     if (data[1] >= rec_per_page) {
-        inner_text = ((page_num - 1) * rec_per_page + 1).toString() + '-'
-            + (Math.min(page_num * rec_per_page, data[1])).toString() + ' of ' + data[1]
-        total_pages = "of " + (parseInt(data[1] / rec_per_page) + 1).toString()
+        inner_text = `${(page_num - 1) * rec_per_page + 1}-${Math.min(page_num * rec_per_page, data[1])} of ${data[1]}`;
+        total_pages = `of ${Math.floor((data[1] - 1) / rec_per_page) + 1}`;
     } else {
-        inner_text = '1-' + (data[1]).toString()
-            + ' of ' + data[1].toString()
-        total_pages = "of 1"
+        inner_text = `1-${data[1]} of ${data[1]}`;
+        total_pages = "of 1";
     }
-    document.getElementById("totalRecordsPanel").innerText = inner_text
-    page_element.parentNode.childNodes[2].textContent = total_pages
-    page_element.setAttribute("maxPages", parseInt(data[1] / rec_per_page) + 1)
-    page_element.value = currentPage
+
+    document.getElementById("totalRecordsPanel").innerText = inner_text;
+    page_element.parentNode.childNodes[2].textContent = total_pages;
+    page_element.setAttribute("maxPages", Math.floor((data[1] - 1) / rec_per_page) + 1);    
+    page_element.value = currentPage;
 }
 
-const not_eq_list = function (a, b) {
-    if (a.length !== b.length) return true;
-    for (let ax of a) {
-        if (b.indexOf(ax) == -1) return true;
+function not_eq_list(a, b) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return true;
+    for (let i = 0; i < a.length; i++) {
+        if (!b.includes(a[i])) return true;
     }
-    return false
+    return false;
 }
 
 function update_like_object() {
-    let i = 0
-    if (primary_column){
-        i = 1
-    }
-    let reload_flag = false
-    for (let [idx,inp] of document.querySelectorAll("tr.lovRow th input[type=text]").entries()){
-        let val = inp.value
-        let col_name = col_names[idx+i]
-        if (col_name in like_query) {
-            if (like_query[col_name] != val) {
-                reload_flag = true
-                if (val == "") {
-                    delete like_query[col_name]
-                } else {
-                    like_query[col_name] = val
-                }
+    let startIdx = primary_column ? 1 : 0;
+    let reload_flag = false;
+    const inputs = document.querySelectorAll("tr.lovRow th input[type=text]");
+    for (let idx = 0; idx < inputs.length; idx++) {
+        const inp = inputs[idx];
+        const val = inp.value;
+        const col_name = col_names[idx + startIdx];
+        if (val === "") {
+            if (like_query.hasOwnProperty(col_name)) {
+                delete like_query[col_name];
+                reload_flag = true;
             }
-        } else if (val == "") {
-            continue
         } else {
-            like_query[col_name] = val
+            if (like_query[col_name] !== val) {
+                like_query[col_name] = val;
+                reload_flag = true;
+            }
         }
     }
-    if (Object.keys(like_query).length>0){
-        reload_flag = true
+    if (Object.keys(like_query).length > 0) {
+        reload_flag = true;
     }
-    return reload_flag
+    return reload_flag;
 }
 
 page_element.addEventListener("keyup", function (e) {
     if (e.key === "Enter") {
-        const new_page_num = page_element.value
-        if (isNaN(new_page_num)) {
-            page_element.value = currentPage
-        } else {
-            const max_page_num = parseInt(page_element.getAttribute("maxPages"))
-            let page_val = parseInt(page_element.value)
-            if (page_val <= 1) {
-                page_val = 1
-            } else if (page_val >= max_page_num) {
-                page_val = max_page_num
-            }
-            page_element.value = page_val
-            if (page_val !== currentPage) {
-                get_table_data(col_names, page_val)
-            }
+        let page_val = parseInt(page_element.value, 10);
+        const max_page_num = parseInt(page_element.getAttribute("maxPages"), 10);
+
+        if (isNaN(page_val)) {
+            page_element.value = currentPage;
+            return;
         }
 
-    }
-})
+        page_val = Math.max(1, Math.min(page_val, max_page_num));
+        page_element.value = page_val;
 
-document.getElementById("firstPageBtn").onclick = function (e) {
+        if (page_val !== currentPage) {
+            get_table_data(col_names, page_val);
+        }
+    }
+});
+
+document.getElementById("firstPageBtn").onclick = () => {
     if (currentPage > 1) {
-        page_element.value = 1
-        get_table_data(col_names, 1)
+        page_element.value = 1;
+        get_table_data(col_names, 1);
     }
-}
+};
 
-document.getElementById("prevPageBtn").onclick = function (e) {
+document.getElementById("prevPageBtn").onclick = () => {
     if (currentPage > 1) {
-        page_element.value = currentPage - 1
-        get_table_data(col_names, currentPage - 1)
+        page_element.value = currentPage - 1;
+        get_table_data(col_names, currentPage - 1);
     }
-}
+};
 
-document.getElementById("nextPageBtn").onclick = function (e) {
-    const max_page_num = parseInt(page_element.getAttribute("maxPages"))
-    if (currentPage < max_page_num) {
-        page_element.value = currentPage + 1
-        get_table_data(col_names, currentPage + 1)
+document.getElementById("nextPageBtn").onclick = () => {
+    const maxPage = parseInt(page_element.getAttribute("maxPages"), 10);
+    if (currentPage < maxPage) {
+        page_element.value = currentPage + 1;
+        get_table_data(col_names, currentPage + 1);
     }
-}
+};
 
-document.getElementById("lastPageBtn").onclick = function (e) {
-    const max_page_num = parseInt(page_element.getAttribute("maxPages"))
-    if (currentPage < max_page_num) {
-        page_element.value = max_page_num
-        get_table_data(col_names, max_page_num)
+document.getElementById("lastPageBtn").onclick = () => {
+    const maxPage = parseInt(page_element.getAttribute("maxPages"), 10);
+    if (currentPage < maxPage) {
+        page_element.value = maxPage;
+        get_table_data(col_names, maxPage);
     }
-}
+};
 
-document.getElementById("refreshBtn").onclick = function (e) {
-    Promise.resolve(get_sort()).then(reload_table_data);
-}
+document.getElementById("refreshBtn").onclick = () => {
+    get_sort().then(reload_table_data);
+};
 
 function reload_table_data() {
-    reset_sort_buttons()
-    where_in = new Object
-    where_not_in = new Object
-    like_query = new Object
-    sort_columns = []
-    if (document.getElementById("selectAll")) {
-        document.getElementById("selectAll").checked = false
-    }
-    get_table_data(col_names, 1)
-    for (let cn of table_el.querySelectorAll(".lovRow input.form-ctrl")) {
-        cn.value = ""
-    }
-    const tbl = table_el.querySelector("thead")
-    let span = tbl.querySelectorAll("button.group-text")
-    for(let filter of span){
-        if(filter.childNodes[1]){
-            filter.removeChild(filter.childNodes[0])
-            filter.firstChild.style = ""
+    reset_sort_buttons();
+    where_in = {};
+    where_not_in = {};
+    like_query = {};
+    sort_columns = [];
+    const selectAllEl = document.getElementById("selectAll");
+    if (selectAllEl) selectAllEl.checked = false;
+    get_table_data(col_names, 1);
+    table_el.querySelectorAll(".lovRow input.form-ctrl").forEach(input => input.value = "");
+    table_el.querySelectorAll("thead button.group-text").forEach(btn => {
+        if (btn.childNodes[1]) {
+            btn.removeChild(btn.childNodes[0]);
+            btn.firstChild.style = "";
         }
-    }
+    });
 }
 
 function reset_sort_buttons() {
-    for (let cn of table_el.querySelectorAll("thead span.fa-sort-down")) {
-        cn.classList.add("fa-sort")
-        cn.classList.remove("fa-sort-down")
-    }
-    for (let cn of table_el.querySelectorAll("thead span.fa-sort-up")) {
-        cn.classList.add("fa-sort")
-        cn.classList.remove("fa-sort-up")
-    }
-    for (let el of table_el.querySelectorAll('th.selected_col')) {
-        el.classList.remove("selected_col")
-    }
-
+    table_el.querySelectorAll("thead span.fa-sort-down").forEach(span => {
+        span.classList.add("fa-sort");
+        span.classList.remove("fa-sort-down");
+    });
+    table_el.querySelectorAll("thead span.fa-sort-up").forEach(span => {
+        span.classList.add("fa-sort");
+        span.classList.remove("fa-sort-up");
+    });
+    table_el.querySelectorAll('th.selected_col').forEach(th => th.classList.remove("selected_col"));
 }
 
 function submit_lov_button(th, header_name) {
     
-    const selected_mem = []
-    const not_selected_mem = []
+    const selected = [];
+    const notSelected = [];
 
-    for (let cn of th.querySelectorAll("div.lov-values input")) {
-        if (cn.checked) {
-            selected_mem.push(cn.nextElementSibling.getAttribute('value'))
+    th.querySelectorAll("div.lov-values input").forEach(input => {
+        const value = input.nextElementSibling.getAttribute('value');
+        if (input.checked) {
+            selected.push(value);
         } else {
-            not_selected_mem.push(cn.nextElementSibling.getAttribute('value'))
+            notSelected.push(value);
         }
-    }
-    
-    let reload_flag = false
-    if (selected_mem.length > not_selected_mem.length) {
+    });
+
+    let reload = false;
+    if (selected.length > notSelected.length) {
         if (not_eq_list(where_in[header_name], [])) {
-            reload_flag = true
-            where_in[header_name] = []
+            reload = true;
+            where_in[header_name] = [];
         }
-        if (not_eq_list(where_not_in[header_name], not_selected_mem)) {
-            reload_flag = true
-            where_not_in[header_name] = not_selected_mem
+        if (not_eq_list(where_not_in[header_name], notSelected)) {
+            reload = true;
+            where_not_in[header_name] = notSelected;
         }
     } else {
-        if (not_eq_list(where_in[header_name], selected_mem)) {
-            reload_flag = true
-            where_in[header_name] = selected_mem
+        if (not_eq_list(where_in[header_name], selected)) {
+            reload = true;
+            where_in[header_name] = selected;
         }
         if (not_eq_list(where_not_in[header_name], [])) {
-            reload_flag = true
-            where_not_in[header_name] = []
+            reload = true;
+            where_not_in[header_name] = [];
         }
     }
-    if (reload_flag) {
-        get_table_data(col_names)
+    if (reload) {
+        get_table_data(col_names);
     }
 }
 
@@ -715,276 +614,237 @@ document.getElementById("excelDownloadBtn").onclick =async function (e) {
 }
 
 async function update_column_formatters(header_rows) {
-    let numeric_columns = ['NUMERIC','INTEGER']
-    let formatters = { decimals: 2, comma: 0, locale: 0, currency: 0, aggregate: 'SUM' }
-    const ncf = {}
+    const numeric_types = ['NUMERIC', 'INTEGER'];
+    const default_formatters = { decimals: 2, comma: 0, locale: 0, currency: 0, aggregate: 'SUM' };
+    const new_formatters = {};
 
-    for (let format in formatters) {
-        ncf[format] = new Object
-        for (let col_row of header_rows) {
-            let col_name = col_row[0]
-            if (numeric_columns.indexOf(col_row[1]) > -1) {
-                if (format in column_formatters) {
-                    if (col_name in column_formatters[format]) {
-                        let format_value = column_formatters[format][col_name]
-                        if (!isNaN(format_value) && parseInt(format_value) > -1) {
-                            ncf[format][col_name] = parseInt(format_value)
-                        } else if (["locale", "currency", "aggregate"].indexOf(format) > -1) {
-                            ncf[format][col_name] = format_value
-                        } else {
-                            ncf[format][col_name] = formatters[format]
-                        }
-
-                    } else {
-                        ncf[format][col_name] = formatters[format]
+    // Initialize formatters for numeric columns
+    for (const key in default_formatters) {
+        new_formatters[key] = {};
+        for (const [col_name, col_type] of header_rows.map(row => [row[0], row[1]])) {
+            if (numeric_types.includes(col_type)) {
+                let value = default_formatters[key];
+                if (column_formatters[key] && column_formatters[key][col_name] !== undefined) {
+                    const existing = column_formatters[key][col_name];
+                    if (!isNaN(existing) && parseInt(existing) > -1) {
+                        value = parseInt(existing);
+                    } else if (['locale', 'currency', 'aggregate'].includes(key)) {
+                        value = existing;
                     }
                 }
-                else {
-                    ncf[format][col_name] = formatters[format]
-                }
-
+                new_formatters[key][col_name] = value;
             }
         }
     }
-    
 
-    col_names = header_rows.reduce((a, b) => a.concat(b[0].toLowerCase()), []);
-    for (let format in formatters) {
-        column_formatters[format] = ncf[format]
+    // Lowercase col_names for internal use
+    col_names = header_rows.map(row => row[0].toLowerCase());
+
+    // Assign new formatters to column_formatters
+    for (const key in default_formatters) {
+        column_formatters[key] = new_formatters[key];
     }
 
-    if(!("autofiller" in column_formatters)){
-        column_formatters["autofiller"] = new Object
-    }
-    
-    if (!("query" in column_formatters)){
-        column_formatters["query"] = new Object
-    }
-    
-    if (!("lov" in column_formatters)) {
-        column_formatters["lov"] = new Object
-    }
-    column_formatters["date"] = new Object
-    column_formatters["datetime"] = new Object
+    // Ensure required formatter objects exist
+    ['autofiller', 'query', 'lov'].forEach(key => {
+        if (!(key in column_formatters)) column_formatters[key] = {};
+    });
+    column_formatters['date'] = {};
+    column_formatters['datetime'] = {};
 
-    const col_formatter_list = Object.keys(column_formatters['lov'])
-    for (let col_name of col_formatter_list) {
-        let col_idx = col_names.indexOf(col_name)
-        if (col_idx > -1 && !Array.isArray(column_formatters["lov"][col_name])) {
-            let lov_list = column_formatters["lov"][col_name].split("|")
-            const proper_col_name = header_rows[col_idx][0]
-            if (lov_list[0].trim().toLowerCase() == "select") {
-                if (lov_list[1].trim().toLowerCase().substring(0, 6) == "select") {
-                    delete column_formatters['lov'][col_name]
-                    let new_query = lov_list.slice(1).join('_').trim()
-                    column_formatters["query"][proper_col_name] = new_query
+    // Process LOV and autofiller definitions
+    for (const col_name of Object.keys(column_formatters['lov'])) {
+        const col_idx = col_names.indexOf(col_name);
+        if (col_idx > -1 && !Array.isArray(column_formatters['lov'][col_name])) {
+            const lov_parts = column_formatters['lov'][col_name].split('|');
+            const proper_col_name = header_rows[col_idx][0];
+            const type = lov_parts[0].trim().toLowerCase();
+            const value = lov_parts[1] ? lov_parts[1].trim() : '';
 
-                    const result = await gm.runSelectQuery(modelName,new_query)
-
-                    column_formatters["lov"][proper_col_name] = result
-
+            if (type === 'select') {
+                delete column_formatters['lov'][col_name];
+                if (value.substring(0, 6) === 'select') {
+                    const query = lov_parts.slice(1).join('_').trim();
+                    column_formatters['query'][proper_col_name] = query;
+                    column_formatters['lov'][proper_col_name] = await gm.runSelectQuery(modelName, query);
                 } else {
-                    let lov_list1 = lov_list[1].trim().split(";")
-                    let lov_list2 = []
-                    for (let lov_mem of lov_list1) {
-                        if (lov_mem.trim().length > 0) {
-                            lov_list2.push(lov_mem.trim())
-                        }
-                    }
-                    delete column_formatters['lov'][col_name]
-                    column_formatters["lov"][proper_col_name] = lov_list2
+                    const lov_list = value.split(';').map(v => v.trim()).filter(Boolean);
+                    column_formatters['lov'][proper_col_name] = lov_list;
                 }
-            } else if (lov_list[0].trim().toLowerCase() == "autofiller") {
-                if (lov_list[1].trim().toLowerCase().substring(0, 6) == "select") {
-                    delete column_formatters['lov'][col_name]
-                    let new_query = lov_list.slice(1).join('|').trim()
-                    column_formatters["query"][proper_col_name] = new_query
-                    
-                    const result = await gm.runSelectQuery(modelName,new_query)
-                    column_formatters["autofiller"][proper_col_name] = result 
-                    document.getElementById("dataList_div").appendChild(get_dataList(`${proper_col_name}_dataList`,result))
+            } else if (type === 'autofiller') {
+                delete column_formatters['lov'][col_name];
+                if (value.substring(0, 6) === 'select') {
+                    const query = lov_parts.slice(1).join('|').trim();
+                    column_formatters['query'][proper_col_name] = query;
+                    const result = await gm.runSelectQuery(modelName, query);
+                    column_formatters['autofiller'][proper_col_name] = result;
+                    document.getElementById("dataList_div").appendChild(get_dataList(`${proper_col_name}_dataList`, result));
                 } else {
-                    let lov_list1 = lov_list[1].trim().split(";")
-                    let lov_list2 = []
-                    for (let lov_mem of lov_list1) {
-                        if (lov_mem.trim().length > 0) {
-                            lov_list2.push(lov_mem.trim())
-                        }
-                    }
-                    delete column_formatters['lov'][col_name]
-                    column_formatters["autofiller"][proper_col_name] = lov_list2
-
-                    let dl = document.getElementById(`${proper_col_name}_dataList`)
-                    if (dl){
-                        dl.remove()
-                    }
-                    document.getElementById("dataList_div").appendChild(get_dataList(`${proper_col_name}_dataList`,lov_list2))
+                    const autofill_list = value.split(';').map(v => v.trim()).filter(Boolean);
+                    column_formatters['autofiller'][proper_col_name] = autofill_list;
+                    const dl = document.getElementById(`${proper_col_name}_dataList`);
+                    if (dl) dl.remove();
+                    document.getElementById("dataList_div").appendChild(get_dataList(`${proper_col_name}_dataList`, autofill_list));
                 }
-            } else if (lov_list[0].trim().toLowerCase() == "date") {
-                delete column_formatters['lov'][col_name]
-                column_formatters["date"][proper_col_name] = 1
-            }else if (lov_list[0].trim().toLowerCase() == "datetime") {
-                delete column_formatters['lov'][col_name]
-                column_formatters["datetime"][proper_col_name] = 1
-            }else {
-                console.log("Neither LOV nor Autofiller, please check")
+            } else if (type === 'date') {
+                delete column_formatters['lov'][col_name];
+                column_formatters['date'][proper_col_name] = 1;
+            } else if (type === 'datetime') {
+                delete column_formatters['lov'][col_name];
+                column_formatters['datetime'][proper_col_name] = 1;
+            } else {
+                console.log("Neither LOV nor Autofiller, please check");
             }
-
         }
     }
-
-
 }
 
-document.getElementById("incrDecimals").onclick =async function (e) {
-    const selected_header = table_el.querySelector('thead .selected_col')
-    if (selected_header) {
-        const col_name = selected_header.innerText
-        if (col_name in column_formatters["decimals"]) {
-            column_formatters["decimals"][col_name] += 1
-            
-            await gm.setTableFormatter(modelName,tableName,col_name,{ "Decimals": column_formatters["decimals"][col_name] })
-            for (let cn of table_el.querySelectorAll("td.selected_col")) {
-                let val = parseFloat(cn.getAttribute("title"))
-                if (!isNaN(val)) {
-                    cn.innerText = get_col_string(col_name, val)
+document.getElementById("incrDecimals").onclick = async function () {
+    const selectedHeader = table_el.querySelector('thead .selected_col');
+    if (!selectedHeader) {
+        confirmBox("Alert!", "Please select a column");
+        return;
+    }
+    const colName = selectedHeader.innerText;
+    if (!(colName in column_formatters["decimals"])) {
+        confirmBox("Alert!", "Please select a numeric column");
+        return;
+    }
+    column_formatters["decimals"][colName]++;
+    await gm.setTableFormatter(modelName, tableName, colName, { "Decimals": column_formatters["decimals"][colName] });
+    table_el.querySelectorAll("td.selected_col").forEach(td => {
+        const val = parseFloat(td.getAttribute("title"));
+        if (!isNaN(val)) td.innerText = get_col_string(colName, val);
+    });
+};
+
+document.getElementById("decrDecimals").onclick = async function () {
+    const selectedHeader = table_el.querySelector('thead .selected_col');
+    if (!selectedHeader) {
+        confirmBox("Alert!", "Please select a column");
+        return;
+    }
+    const colName = selectedHeader.innerText;
+    if (!(colName in column_formatters["decimals"])) {
+        confirmBox("Alert!", "Please select a numeric column");
+        return;
+    }
+    const newDecimals = column_formatters["decimals"][colName] - 1;
+    if (newDecimals < 0) return;
+    column_formatters["decimals"][colName] = newDecimals;
+    await gm.setTableFormatter(modelName, tableName, colName, { "Decimals": newDecimals });
+    table_el.querySelectorAll("td.selected_col").forEach(td => {
+        const val = parseFloat(td.getAttribute("title"));
+        if (!isNaN(val)) td.innerText = get_col_string(colName, val);
+    });
+};
+
+document.getElementById("showSummaryBtn").onclick = async function () {
+    const numericColumns = Object.keys(column_formatters["decimals"]);
+    const tfoot = table_el.querySelector("tr.footer");
+
+    if (numericColumns.length === 0) return;
+
+    if (tfoot.classList.contains("hidden")) {
+        document.getElementById("data-loader").style.display = "";
+
+        const summaryData = await gm.getSummary(
+            modelName,
+            tableName,
+            numericColumns,
+            where_in,
+            where_not_in,
+            like_query
+        );
+
+        document.getElementById("data-loader").style.display = "none";
+
+        numericColumns.forEach((colName, i) => {
+            const decimals = column_formatters["decimals"][colName];
+            const currency = column_formatters["currency"][colName];
+            const locale = column_formatters["locale"][colName];
+            const commaFlag = column_formatters["comma"][colName];
+            const value = summaryData[i];
+
+            let idx = col_names.indexOf(colName, editable_flag ? 1 : 0);
+
+            let localeOptions = {
+                maximumFractionDigits: decimals
+            };
+            if (currency) {
+                localeOptions.style = "currency";
+                localeOptions.currency = currency;
+                if (decimals < 2) {
+                    localeOptions.maximumFractionDigits = decimals;
                 }
             }
-        }
-        else {
-            confirmBox("Alert!", "Please select a numeric column")
-        }
+
+            let displayValue;
+            if (commaFlag) {
+                displayValue = value.toLocaleString(locale, localeOptions);
+            } else {
+                displayValue = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+            }
+
+            tfoot.childNodes[idx].innerText = displayValue;
+            tfoot.childNodes[idx].setAttribute("title", value);
+        });
+
+        tfoot.classList.remove("hidden");
     } else {
-        confirmBox("Alert!", "Please select a column")
+        tfoot.classList.add("hidden");
     }
-}
+};
 
-document.getElementById("decrDecimals").onclick =async function (e) {
-    const selected_header = table_el.querySelector('thead .selected_col')
-    if (selected_header) {
-        const col_name = selected_header.innerText
-        if (col_name in column_formatters["decimals"]) {
-            const n = column_formatters["decimals"][col_name] - 1
-            if (n > -1) {
-                column_formatters["decimals"][col_name] = n
-                
-                await gm.setTableFormatter(modelName,tableName,col_name,{ "Decimals": n })
-                for (let cn of table_el.querySelectorAll("td.selected_col")) {
-                    let val = parseFloat(cn.getAttribute("title"))
-                    if (!isNaN(val)) {
-                        cn.innerText = get_col_string(col_name, val)
-                    }
-                }
-            }
-        }
-        else {
-            confirmBox("Alert!", "Please select a numeric column")
-        }
-    } else {
-        confirmBox("Alert!", "Please select a column")
+document.getElementById("thousandSepBtn").onclick = async function () {
+    const selectedHeader = table_el.querySelector('thead .selected_col');
+    if (!selectedHeader) {
+        confirmBox("Alert!", "Please select a column");
+        return;
     }
-}
-
-document.getElementById("showSummaryBtn").onclick = async function (e) {
-    const numeric_columns = Object.keys(column_formatters["decimals"])
-    let tfoot = table_el.querySelector("tr.footer")
-    if (numeric_columns.length > 0) {
-        if (tfoot.classList.contains("hidden")) {
-            document.getElementById("data-loader").style.display = ""
-            
-            const data = await gm.getSummary(modelName, tableName, numeric_columns, where_in, where_not_in, like_query)
-            document.getElementById("data-loader").style.display = "none"
-            for (let col_name of numeric_columns) {
-                let n = column_formatters["decimals"][col_name]
-                let currency = column_formatters["currency"][col_name]
-                let locale = column_formatters["locale"][col_name]
-                let val = data[numeric_columns.indexOf(col_name)]
-                let strt = 1
-                if (!editable_flag){
-                    strt = 0
-                }
-                let idx = col_names.indexOf(col_name,strt)
-                let comma_flag = column_formatters["comma"][col_name]
-                let new_val
-                let locale_obj = new Object
-                locale_obj["maximumFractionDigits"] = n
-                if (currency) {
-                    locale_obj["style"] = "currency"
-                    locale_obj["currency"] = currency
-                    if (n < 2) {
-                        locale_obj["minimumFractionDigits"] = n
-                    }
-                }
-                if (comma_flag) {
-                    new_val = val.toLocaleString(locale, locale_obj)
-                } else {
-                    new_val = Math.round(val * Math.pow(10, n)) / Math.pow(10, n)
-                }
-                tfoot.childNodes[idx].innerText = new_val;
-                tfoot.childNodes[idx].setAttribute("title", val)
-            }
-            tfoot.classList.remove("hidden")
-        } else {
-            tfoot.classList.add("hidden")
-        }
-
+    const colName = selectedHeader.innerText;
+    if (!(colName in column_formatters["decimals"])) {
+        confirmBox("Alert!", "Please select a numeric column");
+        return;
     }
-}
-
-document.getElementById("thousandSepBtn").onclick = async function (e) {
-    const selected_header = table_el.querySelector('thead .selected_col')
-    if (selected_header) {
-        const col_name = selected_header.innerText
-        if (col_name in column_formatters["decimals"]) {
-            column_formatters["comma"][col_name] = 1 - column_formatters["comma"][col_name]
-
-            await gm.setTableFormatter(modelName,tableName,col_name,{ "Comma": column_formatters["comma"][col_name] })
-
-            for (let cn of table_el.querySelectorAll("td.selected_col")) {
-                let val = parseFloat(cn.getAttribute("title"))
-                if (!isNaN(val)) {
-                    cn.innerText = get_col_string(col_name, val)
-                }
-            }
+    // Toggle comma separator
+    column_formatters["comma"][colName] = column_formatters["comma"][colName] ? 0 : 1;
+    await gm.setTableFormatter(modelName, tableName, colName, { "Comma": column_formatters["comma"][colName] });
+    table_el.querySelectorAll("td.selected_col").forEach(td => {
+        const val = parseFloat(td.getAttribute("title"));
+        if (!isNaN(val)) {
+            td.innerText = get_col_string(colName, val);
         }
-        else {
-            confirmBox("Alert!", "Please select a numeric column")
-        }
-    } else {
-        confirmBox("Alert!", "Please select a column")
-    }
-}
+    });
+};
 
 function move_elements(bt_type, src_id, dest_id) {
-    if (bt_type == "all") {
-        for (let trd of document.getElementById(src_id).querySelectorAll("li")) {
-            document.getElementById(dest_id).appendChild(trd)
-        }
+    const srcList = document.getElementById(src_id);
+    const destList = document.getElementById(dest_id);
 
-    } else if (bt_type == "one") {
-        for (let trd of document.getElementById(src_id).querySelectorAll("li.selectedValue")) {
-            document.getElementById(dest_id).appendChild(trd)
-            trd.classList.remove("selectedValue")
-        }
-
+    if (bt_type === "all") {
+        Array.from(srcList.querySelectorAll("li")).forEach(li => {
+            destList.appendChild(li);
+        });
+    } else if (bt_type === "one") {
+        Array.from(srcList.querySelectorAll("li.selectedValue")).forEach(li => {
+            destList.appendChild(li);
+            li.classList.remove("selectedValue");
+        });
     }
 }
 
-document.getElementById("allLeft").onclick = function (e) {
-    move_elements(this.getAttribute("bttype"), this.getAttribute("src"), this.getAttribute("dest"))
-}
+["allLeft", "allRight", "selectedLeft", "selectedRight"].forEach(btnId => {
+    document.getElementById(btnId).onclick = function () {
+        move_elements(
+            this.getAttribute("bttype"),
+            this.getAttribute("src"),
+            this.getAttribute("dest")
+        );
+    };
+});
 
-document.getElementById("allRight").onclick = function (e) {
-    move_elements(this.getAttribute("bttype"), this.getAttribute("src"), this.getAttribute("dest"))
-}
-
-document.getElementById("selectedLeft").onclick = function (e) {
-    move_elements(this.getAttribute("bttype"), this.getAttribute("src"), this.getAttribute("dest"))
-}
-
-document.getElementById("selectedRight").onclick = function (e) {
-    move_elements(this.getAttribute("bttype"), this.getAttribute("src"), this.getAttribute("dest"))
-}
+//start from here
 
 function populate_columns(available_column, selected_column) {
     document.getElementById("availableColumn").innerHTML = ""
@@ -1198,19 +1058,19 @@ function get_table_row(row, selected_idx, select_all = false, page_num = 1) {
 
 
             tr.appendChild(
-                get_cl_element("td", "px-4 py-2 text-center border-r", val, input_el)
+                get_cl_element("td", "px-3 py-2 text-center border-r", val, input_el)
             );
 
         } else {
             let td;
             if (val === null) {
-                td = get_cl_element("td", "px-4 py-2 align-top border-r whitespace-normal");
+                td = get_cl_element("td", "px-3 py-2 align-top border-r whitespace-normal");
             } else {
                 if (col_names[idx] in column_formatters["decimals"]) {
-                    td = get_cl_element("td", "px-4 py-2 align-top text-right border-r whitespace-normal");
+                    td = get_cl_element("td", "px-3 py-2 align-top text-right border-r whitespace-normal");
                     if (isNaN(val)) {
                         td.appendChild(document.createTextNode(val));
-                        td.classList.add("bg-red-100", "text-red-600", "font-medium");
+                        td.style.backgroundColor = "red";
                         td.setAttribute("title", "Expecting Numeric Value");
                     } else {
                         td.appendChild(
@@ -1250,7 +1110,7 @@ function get_table_row(row, selected_idx, select_all = false, page_num = 1) {
     }
 
     if (selected_idx > 0 && selected_idx < row.length) {
-        tr.childNodes[selected_idx].classList.add("bg-blue-100", "text-blue-600", "font-semibold");
+        tr.childNodes[selected_idx].classList.add("selected_col")
     }
 
     return tr;

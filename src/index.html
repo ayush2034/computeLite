@@ -39,69 +39,72 @@
    
     <link type="text/css" href="./page_assets/landing-page/css/style.css" rel="stylesheet">
     <link rel="stylesheet" href="./assets/css/style.css" />
-    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     
 </head>
 
 <body class="px-5 bg-gradient-to-tr from-neutral-950 to-neutral-700">
     <header>
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div>
-                <a class="navbar-logo font-semibold" href="./homePage.html">Compute <b>Lite</b></a>
-                <a class="navbar-el ms-4 font-semibold" href="./homePage.html">Playground</a>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <a class="navbar-logo font-semibold text-lg sm:text-xl" href="./homePage.html">
+                Compute <b>Lite</b>
+                </a>
+                <a class="navbar-el font-semibold text-sm sm:text-base" href="./homePage.html">
+                Playground
+                </a>
             </div>
-            <nav class="flex items-center space-x-6 text-sm">
-                <a href="https://github.com/computelite/computelite" target="_blank" class="btn-secondary" type="button">
-                <span class="fa-brands fa-github"></span>
+            <nav class="flex items-center space-x-4 sm:space-x-6 text-sm">
+                <a href="https://github.com/computelite/computelite" target="_blank" 
+                class="btn-secondary text-lg" type="button">
+                    <span class="fa-brands fa-github"></span>
                 </a>
             </nav>
         </div>
     </header>
     
-    <section class="hero text-white flex items-center mt-12" style="height: auto;">
-        <div>
-            <h1 class="text-3xl font-bold mb-2">Welcome to Compute Lite</h1>
-            <p class="mt-5 lead">ComputeLite is a revolutionary serverless tool designed for powerful, in-browser computation. Leveraging the capabilities of Pyodide, WebR, Modern Javascript and SQLite OPFS, ComputeLite ensures that all data and code remain securely in the browser, with no server dependencies or external storage. This approach not only enhances privacy and security but also offers seamless, edge computing for data analysis and processing, entirely in the user's control. ComputeLite represents a leap forward in user-centered, in-browser computing, making advanced computations accessible and secure.</p>
-            <a href="./homePage.html" class="btn align-items-center py-1 px-5 bg-white mt-4 text-white" >
-                <span class="m-0 text-primary font-bold text-lg">Open Compute Lite</span>
+    <section class="text-white flex flex-col md:flex-row items-center mt-12 md:mt-20">
+        <div class="max-w-3xl text-center md:text-left">
+            <h1 class="text-xl md:text-3xl font-bold mb-4">Welcome to Compute Lite</h1>
+            <p class="mt-4 md:mt-6 text-base md:text-lg leading-relaxed">
+                ComputeLite is a revolutionary serverless tool designed for powerful, in-browser computation. 
+                Leveraging the capabilities of Pyodide, WebR, Modern Javascript and SQLite OPFS, ComputeLite ensures 
+                that all data and code remain securely in the browser, with no server dependencies or external storage. 
+                This approach not only enhances privacy and security but also offers seamless, edge computing for data 
+                analysis and processing, entirely in the user's control.
+            </p>
+            <a href="./homePage.html" 
+                class="inline-block py-2 px-6 mt-6 bg-white rounded-lg shadow text-primary font-bold text-lg">
+                Open Compute Lite
             </a>
         </div>
     </section>
     
-    <section class="tool-features" id="features">
-        <div class="text-white">
-            <h2 class="mb-8 font-weight-large text-3xl font-semibold">Languages supported</h2>
-            <div class="flex flex-row gap-6">
-                <div class="w-1/5">
-                    <div class="feature-card p-3 bg-transparent rounded shadow text-center flex flex-col items-center">
-                        <i class="fas fa-database fa-3x mb-3"></i>
-                        <h3 class="mt-2 text-lg font-semibold">SQL</h3>
-                    </div>
+    <section class="tool-features mt-12 md:mt-20" id="features">
+        <div class="text-white text-center">
+            <h2 class="mb-10 text-2xl md:text-3xl font-semibold">Languages Supported</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
+                    <i class="fas fa-database fa-3x mb-3"></i>
+                    <h3 class="mt-2 text-lg font-semibold">SQL</h3>
                 </div>
-                <div class="w-1/5">
-                    <div class="feature-card p-3 bg-transparent rounded shadow text-center flex flex-col items-center">
-                        <i class="fa-brands fa-python fa-3x mb-3"></i>
-                        <h3 class="mt-2 text-lg font-semibold">Python</h3>
-                    </div>
+                <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
+                    <i class="fa-brands fa-python fa-3x mb-3"></i>
+                    <h3 class="mt-2 text-lg font-semibold">Python</h3>
                 </div>
-                <div class="w-1/5">
-                    <div class="feature-card p-3 bg-transparent rounded shadow text-center flex flex-col items-center">
-                        <i class="fa-brands fa-js fa-3x mb-3"></i>
-                        <h3 class="mt-2 text-lg font-semibold">Javascript</h3>
-                    </div>
+                <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
+                    <i class="fa-brands fa-js fa-3x mb-3"></i>
+                    <h3 class="mt-2 text-lg font-semibold">Javascript</h3>
                 </div>
-                <div class="w-1/5">
-                    <div class="feature-card p-3 bg-transparent rounded shadow text-center flex flex-col items-center">
-                        <i class="fas fa-r fa-3x mb-3"></i>
-                        <h3 class="mt-2 text-lg font-semibold">R</h3>
-                    </div>
+                <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
+                    <i class="fas fa-r fa-3x mb-3"></i>
+                    <h3 class="mt-2 text-lg font-semibold">R</h3>
                 </div>
             </div>
         </div>
     </section>
 
 
-    <section class="py-20 text-white" id="accordionFeatures">
+    <section class="mt-12 md:mt-20 text-white" id="accordionFeatures">
         <h2 class="text-3xl font-bold text-center mb-12">FAQ's</h2>
         <div class="max-w-3xl mx-auto">
             <div>
@@ -223,58 +226,48 @@
 
     
 
-    <section class="tool-features hero" id="features">
-        <div>
-            <h2 class="text-white font-bold text-3xl mb-4">Community</h2>
-            <p class="lead mb-8">Join our community for the latest updates, roadmap insights, and discussions on the future of Compute Lite.</p>
-            <div class="flex flex-wrap gap-6">
-                <div class="w-full sm:w-1/2 md:w-1/5">
-                    <a href="https://github.com/computelite/computelite" target="_blank">
-                        <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
-                            <i class="fa-brands fa-github fa-3x mb-3 text-white"></i>
-                            <h3 class="text-white text-lg font-semibold">Github</h3>
-                        </div>
-                    </a>
+    <section class="tool-features mt-12 md:mt-20" id="community">
+        <div class="text-center text-white">
+            <h2 class="font-bold text-2xl md:text-3xl mb-4">Community</h2>
+            <p class="mb-8 text-base md:text-lg">Join our community for the latest updates, roadmap insights, and discussions on the future of Compute Lite.</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                <a href="https://github.com/computelite/computelite" target="_blank">
+                <div class="feature-card p-6 rounded shadow text-center flex flex-col items-center">
+                    <i class="fa-brands fa-github fa-3x mb-3 text-white"></i>
+                    <h3 class="text-lg font-semibold">Github</h3>
                 </div>
-                <div class="w-full sm:w-1/2 md:w-1/5">
-                    <a href="https://www.youtube.com/channel/UCbow7ND3jqDBOZCRzpo9NGA" target="_blank">
-                        <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
-                            <i class="fa-brands fa-youtube fa-3x mb-3 text-white"></i>
-                            <h3 class="text-white text-lg font-semibold">Youtube</h3>
-                        </div>
-                    </a>
+                </a>
+                <a href="https://www.youtube.com/channel/UCbow7ND3jqDBOZCRzpo9NGA" target="_blank">
+                <div class="feature-card p-6 rounded shadow text-center flex flex-col items-center">
+                    <i class="fa-brands fa-youtube fa-3x mb-3 text-white"></i>
+                    <h3 class="text-lg font-semibold">Youtube</h3>
                 </div>
-                <div class="w-full sm:w-1/2 md:w-1/5">
-                    <a href="https://groups.google.com/g/computelite" target="_blank">
-                        <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
-                            <i class="fa-solid fa-user-group fa-3x mb-3 text-white"></i>
-                            <h3 class="text-white text-lg font-semibold">Google Groups</h3>
-                        </div>
-                    </a>
+                </a>
+                <a href="https://groups.google.com/g/computelite" target="_blank">
+                <div class="feature-card p-6 rounded shadow text-center flex flex-col items-center">
+                    <i class="fa-solid fa-user-group fa-3x mb-3 text-white"></i>
+                    <h3 class="text-lg font-semibold">Google Groups</h3>
                 </div>
-                <div class="w-full sm:w-1/2 md:w-1/5">
-                    <a href="https://docs.computelite.com" target="_blank">
-                        <div class="feature-card p-6 bg-transparent rounded shadow text-center flex flex-col items-center">
-                            <i class="fa-solid fa-book fa-3x mb-3 text-white"></i>
-                            <h3 class="text-white text-lg font-semibold">Docs</h3>
-                        </div>
-                    </a>
+                </a>
+                <a href="https://docs.computelite.com" target="_blank">
+                <div class="feature-card p-6 rounded shadow text-center flex flex-col items-center">
+                    <i class="fa-solid fa-book fa-3x mb-3 text-white"></i>
+                    <h3 class="text-lg font-semibold">Docs</h3>
                 </div>
+                </a>
             </div>
         </div>
     </section>
-    <section class="footer-features">
-    </section>
-    
-    <footer class="footer py-4 text-white">
-        <div class="container">
-            <p>© 2024 Compute Lite. All rights reserved.</p>
-            <div class="d-flex justify-content-center">
-                <a href="./privacyPolicy.html" class="text-white mx-2">Privacy Policy</a>
-                <a href="https://docs.computelite.com" class="text-white mx-2" target="_blank">Help</a>
-                <a class="mail" href="mailto:ComputeLite@gmail.com" title="Mail">&nbsp;
-                    <u>Contact Us</u></a>
-            </div>
+     <footer class="footer py-6 text-white mt-12 md:mt-20 border-t border-neutral-700">
+        <div class="max-w-6xl mx-auto text-center">
+        <p class="text-sm">&copy; 2024 Compute Lite. All rights reserved.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-3 mt-3">
+            <a href="./privacyPolicy.html" class="text-white text-sm">Privacy Policy</a>
+            <a href="https://docs.computelite.com" class="text-white text-sm" target="_blank">Help</a>
+            <a class="mail text-sm" href="mailto:ComputeLite@gmail.com" title="Mail">
+            <u>Contact Us</u>
+            </a>
+        </div>
         </div>
     </footer>
     <script src="./coi-serviceworker.js"></script>

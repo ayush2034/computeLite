@@ -18,7 +18,6 @@
     "@tailwindcss/vite": "^4.1.11",
     "chartist": "^1.3.0",
     "codemirror": "^5.65.18",
-    "danfojs": "^1.2.0",
     "exceljs": "^4.4.0",
     "flatpickr": "^4.6.13",
     "headroom.js": "^0.12.0",

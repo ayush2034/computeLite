@@ -273,7 +273,7 @@ async function uploadZipFile() {
   }
 };
 
-function get_scc_tree(folderDict,parent_folder = false ,fileName = null,filePath = null,parentPath = '', parent_icon = "fa-solid fa-folder") {
+function get_cl_tree(folderDict,parent_folder = false ,fileName = null,filePath = null,parentPath = '', parent_icon = "fa-solid fa-folder") {
   let tree = get_cl_element("ul", "tree");
 
   for (let folderName in folderDict) {
@@ -301,7 +301,7 @@ function get_scc_tree(folderDict,parent_folder = false ,fileName = null,filePath
 
       let childList = get_cl_element("ul", "childList TreeMembers");
       
-      childList.appendChild(get_scc_tree(folderDict[folderName], false, fileName, filePath, parentPath));
+      childList.appendChild(get_cl_tree(folderDict[folderName], false, fileName, filePath, parentPath));
 
       tree.appendChild(parent);
       tree.appendChild(childList);
@@ -414,7 +414,7 @@ async function buildFileStructure(fileName = null,filePath = null) {
   const sortedRoot = sortDirectoriesFirst(root);
   
   document.getElementById('filesDiv').innerHTML = ''
-  document.getElementById('filesDiv').appendChild(get_scc_tree(sortedRoot,true,fileName,filePath))
+  document.getElementById('filesDiv').appendChild(get_cl_tree(sortedRoot,true,fileName,filePath))
 }
 
 function sortDirectoriesFirst(obj) {

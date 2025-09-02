@@ -4,7 +4,7 @@ import Swal from "sweetalert2"
 import * as gm from '../../core/gridMethods'
 import * as hm from '../../core/homePageMethods'
 const pageAlias = {'home':hm,'grid':gm}
-// import { JavascriptEvaluator } from "../../page_assets/js_notebook/js/eval";
+import { JavascriptEvaluator } from "../../page_assets/js_notebook/js/eval";
 import { WebR } from "https://webr.r-wasm.org/latest/webr.mjs";
 
 const btn_class =   { 
@@ -66,65 +66,54 @@ export async function postData(url = '', data = {}) {
 }
 
 export function confirmBox(title, content, action = null, cancel = null) {
-    if (cancel){
-        btn_class.customClass.confirmButton =  'btn btn-primary ml-auto mr-3' 
-        btn_class.showCancelButton = true
+    // Clone btn_class to avoid mutation
+    const btnOptions = JSON.parse(JSON.stringify(btn_class));
+    btnOptions.showCancelButton = !!cancel;
+    btnOptions.customClass.confirmButton = cancel
+        ? 'btn btn-primary ml-auto mr-3'
+        : 'btn btn-primary';
+
+    let swalOptions = {
+        allowOutsideClick: false,
+        title: title || "Info"
+    };
+
+    const lowerTitle = (title || "").toLowerCase();
+    if (!title) {
+        swalOptions.icon = "info";
+    } else if (lowerTitle.startsWith("success")) {
+        swalOptions.icon = "success";
+    } else if (lowerTitle.startsWith("error")) {
+        swalOptions.icon = "error";
+    } else if (
+        lowerTitle.startsWith("warning") ||
+        lowerTitle.startsWith("alert") ||
+        lowerTitle.startsWith("oops")
+    ) {
+        swalOptions.icon = "warning";
+    }
+
+    if (typeof content === "string") {
+        swalOptions.text = content;
     } else {
-        btn_class.customClass.confirmButton =  'btn btn-primary' 
-        btn_class.showCancelButton = false
+        swalOptions.html = content;
     }
 
-    let swal_dict = {}
-    swal_dict['allowOutsideClick'] = false
-    if (title == ""){
-        swal_dict['icon'] = "info"
-        title = "Info"
-    } else if (title.toLowerCase().substring(0, 7) == "success"){
-        swal_dict['icon'] = "success"
-    } else if (title.toLowerCase().substring(0, 5) == "error"){
-        swal_dict['icon'] = "error"
-    } else if (title.toLowerCase().substring(0, 7) == "warning"){
-        swal_dict['icon'] = "warning"
-    } else if (title.toLowerCase().substring(0, 5) == "alert"){
-        swal_dict['icon'] = "warning"
-    } else if (title.toLowerCase().substring(0, 4) == "oops"){
-        swal_dict['icon'] = "warning"
-    }
-
-    swal_dict['title'] = title
-    if(typeof(content)!="string"){
-        swal_dict['html'] = content
-    }else{
-        swal_dict['text'] = content
-    }
-    
-
-    const swal_mixin = Swal.mixin(btn_class);
-
-    swal_mixin.fire(swal_dict).then((result) => {
-        if (result.isConfirmed && action) {
-            action()
-        } else if (result.isDenied && cancel) {
-            cancel()
+    Swal.mixin(btnOptions).fire(swalOptions).then(result => {
+        if (result.isConfirmed && typeof action === "function") {
+            action();
+        } else if (result.isDenied && typeof cancel === "function") {
+            cancel();
         }
     });
 }
 
 export function get_cl_element(tagname, classlist, id = null, childelement = null) {
-    let element = document.createElement(tagname)
-    if (id) {
-        element.id = id
-    }
-    if (classlist) {
-        let class_names = classlist.split(" ")
-        for (let class_name of class_names) {
-            element.classList.add(class_name)
-        }
-    }
-    if (childelement) {
-        element.appendChild(childelement)
-    }
-    return element
+    const element = document.createElement(tagname);
+    if (id) element.id = id;
+    if (classlist) element.className = classlist;
+    if (childelement) element.appendChild(childelement);
+    return element;
 }
 
 function downloadExcel(blob, filename, blobType) {

@@ -3,7 +3,6 @@ div.test {
     height: 92vh;
     width: 100%;
     overflow: auto;
-    scrollbar-width: thin;
     scroll-behavior: smooth;
 }
 
@@ -284,7 +283,7 @@ label.checkBox-label{
     
 label.checkBox-label:before {
     background-color: transparent;
-    color: #893168;
+    color: var(--color-primary);
     content: " ";
     display: block;
     border-radius: 50%;

@@ -81,7 +81,7 @@ font-size: 13px;
 label.checkBox-label:before {
 background-color: transparent;
     /* color: #e40000; */
-    color: #893168;
+    color: var(--color-primary);
     content: " ";
     display: block;
     border-radius: 50%;
