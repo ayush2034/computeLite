@@ -95,7 +95,7 @@ computelite-notebook {
     a,
     span,
     button {
-        color: #bbb;
+        color: var(--color-muted-foreground);
         font-size: 11px;
         text-decoration: none;
     }
@@ -295,7 +295,7 @@ computelite-notebook {
   
   .cell-controls-button {
     background: transparent;
-    color: var(--color-muted-foreground);
+    color: var(--color-muted-foreground) !important;
     font-size: 12px;
     cursor: pointer;
     user-select: none;

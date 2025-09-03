@@ -224,19 +224,15 @@ export async function fetchTableData(modelName,tableName,col_names,where_in={},w
     `;
     
     let data_rows = await executeQuery('fetchData',modelName,query,params)
-    
-    let ct = data_rows.length
-    if (ct == PAGE_COUNT && !distinct){
-        let count_query = `SELECT count(*) FROM [${tableName}] WHERE 1 = 1 ${whereQuery}`
-        ct = await executeQuery('fetchData',modelName,count_query,params)
-        ct = ct[0]
-    }else{
-        ct = ((page_num-1) * PAGE_COUNT) + ct
-    }    
-    
-    let table_data = [data_rows, ct]
-    
-    return table_data
+
+    return [data_rows]
+}
+
+export async function getTableDataCount(modelName,tableName,where_in={},where_not_in={},like_query={}){
+    const { params, whereQuery } = await getWhereQuery(modelName,tableName,where_in, where_not_in, like_query)
+    const count_query = `SELECT count(*) FROM [${tableName}] WHERE 1 = 1 ${whereQuery}`
+    const count = await executeQuery('fetchData',modelName,count_query,params)
+    return count[0]
 }
 
 // Constructs the WHERE clause and parameters for SQL queries based on provided filters.

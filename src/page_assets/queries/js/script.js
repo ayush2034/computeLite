@@ -63,7 +63,7 @@ window.onload = async function () {
     document.getElementById("removeAllAggregation").onclick = move_elements.bind(null, "selectedLevel", "availableLevel", "removeAll");
     document.getElementById("searchQuery").onkeyup = findtr;
     
-    document.getElementById('aggregation-new').addEventListener('shown.bs.tab', async function () {
+    document.getElementById('aggregation-new').onclick = async function () {
         const query_name = document.getElementById('queryNm').value;
         const table_name = document.getElementById('tableNm').value;
         if (query_name === '') {
@@ -76,8 +76,6 @@ window.onload = async function () {
             return;
         }
         
-        // const avl_lvl = document.getElementById("availableLevel").innerHTML
-        // const sel_lvl = document.getElementById("selectedLevel").innerHTML
 
         const isDisabled = document.getElementById("tableNm").disabled
 
@@ -85,8 +83,8 @@ window.onload = async function () {
             await set_all_agg()
         }
         
-    })
-    document.getElementById('series-new').addEventListener('shown.bs.tab', async function () {
+    }
+    document.getElementById('series-new').onclick = async function () {
         const query_name = document.getElementById('queryNm').value;
         const table_name = document.getElementById('tableNm').value;
         if (query_name === '') {
@@ -99,8 +97,8 @@ window.onload = async function () {
             return;
         }
         await set_series_data()
-    })
-    document.getElementById('layout-new').addEventListener('shown.bs.tab', async function () {
+    }
+    document.getElementById('layout-new').onclick = async function () {
         const query_name = document.getElementById('queryNm').value;
         const table_name = document.getElementById('tableNm').value;
         if (query_name === '') {
@@ -119,7 +117,7 @@ window.onload = async function () {
             series_el.value = lx
             document.getElementById("layoutY").appendChild(series_el)
         }
-    })
+    }
 
     document.getElementById('editQueryBtn').onclick = async function (e) {
         inrText = e.target.innerText.trim().toLowerCase();
@@ -171,16 +169,6 @@ window.onload = async function () {
     }
     await set_querysheet_def()
     await populate_querysheet_def()
-
-    // const zSelect = document.querySelector("#ZLayoutContentDiv select");
-    
-    // if (zSelect) {
-    //     zSelect.addEventListener("change", function () {
-    //         const level_name = this.closest(".z_el").getAttribute("level_name");
-    //         get_query_data(level_name);
-    //     });
-    // }
-    
 }
 
 async function get_all_tables() {

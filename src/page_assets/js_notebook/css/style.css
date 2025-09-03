@@ -95,7 +95,7 @@ computelite-notebook {
     a,
     span,
     button {
-        color: #bbb;
+        color: var(--color-muted-foreground);
         font-size: 11px;
         text-decoration: none;
     }

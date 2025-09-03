@@ -1,6 +1,6 @@
 import { get_cl_element,confirmBox,executeQuery,fetchData } from "../../../assets/js/scc"
 import * as gm from "../../../core/gridMethods"
-// import * as bootstrap from 'bootstrap'
+import Sortable from "sortablejs"
 import flatpickr from "flatpickr"
 import 'flatpickr/dist/flatpickr.min.css'
 import CodeMirror from "codemirror";
@@ -42,29 +42,33 @@ const editor = CodeMirror.fromTextArea(document.getElementById("editorText"), {
     autofocus: true,
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
+window.addEventListener("DOMContentLoaded", async () => {
     const result = await executeQuery('init');
     if (result && result.msg === 'Success') {
         await init();
     }
 
     document.getElementById('editorButton').onclick = get_editor;
-
-    // Prevent dropdown menu input from submitting forms or toggling dropdown on Enter
+    // Prevent Enter key default behavior in dropdown-menu text inputs
     document.querySelectorAll('.dropdown-menu input[type="text"]').forEach(input => {
-        input.addEventListener('keydown', e => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                e.stopPropagation();
+        input.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                event.stopPropagation();
             }
         });
     });
 });
 
 async function init() {
+    let e1 = document.getElementById("selectedColumn")
+    let e2 = document.getElementById("availableColumn")
     document.getElementById("sidebarBtn").onclick = hide_sidebar;
     document.getElementById("editor-button").onclick = run_editor_query;
-
+    Sortable.create(e1,{group:"words",
+    animation:150})
+    Sortable.create(e2,{group:"words",
+    animation:150})
     await get_table_rows();
 
     const result = await gm.fetchTableFormatter(modelName, tableName);
@@ -432,22 +436,30 @@ async function get_table_data(col_names, page_num = 1) {
         tr.classList.add("hidden");
         tbl.appendChild(tr);
     }
+    
+    const data_count = await gm.getTableDataCount(
+        modelName,
+        tableName,
+        where_in,
+        where_not_in,
+        like_query
+    );
 
     const rec_per_page = 1000;
     let inner_text = "";
     let total_pages = "";
 
-    if (data[1] >= rec_per_page) {
-        inner_text = `${(page_num - 1) * rec_per_page + 1}-${Math.min(page_num * rec_per_page, data[1])} of ${data[1]}`;
-        total_pages = `of ${Math.floor((data[1] - 1) / rec_per_page) + 1}`;
+    if (data_count >= rec_per_page) {
+        inner_text = `${(page_num - 1) * rec_per_page + 1}-${Math.min(page_num * rec_per_page, data_count)} of ${data_count}`;
+        total_pages = `of ${Math.floor((data_count - 1) / rec_per_page) + 1}`;
     } else {
-        inner_text = `1-${data[1]} of ${data[1]}`;
+        inner_text = `1-${data_count} of ${data_count}`;
         total_pages = "of 1";
     }
 
     document.getElementById("totalRecordsPanel").innerText = inner_text;
     page_element.parentNode.childNodes[2].textContent = total_pages;
-    page_element.setAttribute("maxPages", Math.floor((data[1] - 1) / rec_per_page) + 1);    
+    page_element.setAttribute("maxPages", Math.floor((data_count - 1) / rec_per_page) + 1);    
     page_element.value = currentPage;
 }
 
@@ -847,195 +859,179 @@ function move_elements(bt_type, src_id, dest_id) {
 //start from here
 
 function populate_columns(available_column, selected_column) {
-    document.getElementById("availableColumn").innerHTML = ""
-    document.getElementById("selectedColumn").innerHTML = ""
+    const availableEl = document.getElementById("availableColumn");
+    const selectedEl = document.getElementById("selectedColumn");
+    availableEl.innerHTML = "";
+    selectedEl.innerHTML = "";
 
-    for (let column_name of available_column) {
-        document.getElementById("availableColumn").appendChild(get_li_element(column_name))
-    }
-
-    for (let column_name of selected_column) {
-        document.getElementById("selectedColumn").appendChild(get_li_element(column_name))
-    }
-
+    available_column.forEach(col => availableEl.appendChild(get_li_element(col)));
+    selected_column.forEach(col => selectedEl.appendChild(get_li_element(col)));
 }
 
 function get_li_element(col_name) {
-    let el = get_cl_element("li", "dropzone", null, document.createTextNode(col_name))
-    el.setAttribute("draggable",true)
+    const el = get_cl_element("li", "dropzone", null, document.createTextNode(col_name));
+    el.setAttribute("draggable", true);
+
     el.onclick = function (e) {
         if (!e.ctrlKey) {
-            for (let cn of this.parentNode.querySelectorAll("li.selectedValue")) {
-                cn.classList.remove("selectedValue")
-            }
+            this.parentNode.querySelectorAll("li.selectedValue").forEach(li => li.classList.remove("selectedValue"));
         }
-        this.classList.add("selectedValue")
+        this.classList.add("selectedValue");
         e.preventDefault();
-    }
+    };
 
     el.ondblclick = function () {
-        let new_col_name = this.parentNode.getAttribute("dest")
-        document.getElementById(new_col_name).appendChild(this)
-        this.classList.remove("selectedValue")
-    }
+        const destId = this.parentNode.getAttribute("dest");
+        if (destId) {
+            document.getElementById(destId).appendChild(this);
+            this.classList.remove("selectedValue");
+        }
+    };
 
-    return el
+    return el;
 }
 
 async function get_columns() {
-    const data = await gm.fetchColumnsData(modelName,tableName)
-    if (data[1].length == 0) {
-        confirmBox("Alert!", `No table exists with tablename ${tableName} `)
+    const data = await gm.fetchColumnsData(modelName, tableName);
+    if (!data[1] || data[1].length === 0) {
+        confirmBox("Alert!", `No table exists with tablename ${tableName}`);
+        return;
     }
-    get_table_headers(data[1])
-    let selected_column
+    get_table_headers(data[1]);
+    let selected_column = data[1].map(row => row[0]);
     if (editable_flag) {
-        selected_column = data[1].reduce((a, b) => a.concat(b[0]), []).splice(1)
-    } else {
-        selected_column = data[1].reduce((a, b) => a.concat(b[0]), [])
+        selected_column = selected_column.slice(1);
     }
 
-    populate_columns(data[0], selected_column)
-
+    populate_columns(data[0], selected_column);
 }
 
-document.getElementById("saveColumnSelection").onclick = async function (e) {
-    const selected_column = []
-    for (let cn of document.getElementById("selectedColumn").childNodes) {
-        selected_column.push(cn.innerText)
+document.getElementById("saveColumnSelection").onclick = async function () {
+    const selectedColumns = Array.from(document.getElementById("selectedColumn").children)
+        .map(li => li.innerText);
+
+    const result = await gm.updateColumnOrders(modelName, tableName, selectedColumns);
+
+    if (result) {
+        get_columns();
     }
 
-    const result = await gm.updateColumnOrders(modelName,tableName,selected_column)
-    console.log(result);
-    
-    if (result){        
-        get_columns()
-    }   
+    document.getElementById('modal-select-column').classList.add('hidden');
+};
 
-    document.getElementById('modal-select-column').classList.add('hidden')
-
-}
-
-document.addEventListener('keydown', multi_update);
-
-function multi_update(e) {
-    if (e.key == "F2" && editable_flag) {
-        const selected_header = table_el.querySelector('thead .selected_col')
-        if (selected_header) {
+document.addEventListener('keydown', function (e) {
+    if (e.key === "F2" && editable_flag) {
+        const selectedHeader = table_el.querySelector('thead .selected_col');
+        if (selectedHeader) {
             if (document.getElementById("modal-update-column").classList.contains("hidden")) {
-                update_column_modal(selected_header.innerText)
-                e.preventDefault()
+                update_column_modal(selectedHeader.innerText);
+                e.preventDefault();
             }
-        }else{
-            confirmBox("Alert!", "Please select a column")
+        } else {
+            confirmBox("Alert!", "Please select a column");
         }
-    }else if (e.keyCode==120){
-        if (document.getElementById("editorDiv").style.display == ""){
-            run_editor_query()
+    } else if (e.keyCode === 120) {
+        if (document.getElementById("editorDiv").style.display === "") {
+            run_editor_query();
         }
-    }else if (e.ctrlKey && e.keyCode == 67) {
-        if(document.getElementById("logtableDiv").style.display != "none"){
+    } else if (e.ctrlKey && e.keyCode === 67) {
+        if (document.getElementById("logtableDiv").style.display !== "none") {
             navigator.clipboard.writeText(get_query_text());
         }
-     }
-}
+    }
+});
 
 
 function update_column_modal(col_name) {
-    let input_el = document.getElementById("colValue")
-    input_el.setAttribute('Autocomplete','off')
-    input_el.style.borderBottomRightRadius = 0
-    input_el.style.borderTopRightRadius = 0
-    if (input_el.parentNode.classList.contains("awesomplete")){
-        let other_inp = input_el.cloneNode(true)
-        let pnode = input_el.parentNode.parentNode
-        input_el.parentNode.remove()
-        pnode.insertBefore(other_inp, pnode.firstChild)
-        input_el = other_inp
-    }
-    input_el.value = ""
-    if (dt_picker){
-        dt_picker.destroy()
-        dt_picker=null
-    }
-    input_el.classList.remove("datepicker-input")
-    input_el.removeAttribute('list')
-    input_el.parentNode.style.display = "flex"
-    document.getElementById("colSelectValue").parentNode.style.display = "none"
-    document.getElementById("ColValueLabel").innerText = col_name
-    if (col_name in column_formatters["autofiller"]) {       
-        input_el.setAttribute("list",`${col_name}_dataList`)
-        input_el.parentNode.style.flex = 1;
-        
-    } else if (col_name in column_formatters["lov"]) {
-        let select_el = document.getElementById("colSelectValue")
-        input_el.parentNode.style.display = "none"
-        select_el.parentNode.style.display = "flex"
-        select_el.innerHTML = ""
-        if(column_formatters["lov"][col_name].length>0){
-            for (let col_val of column_formatters["lov"][col_name]) {
-                let el = get_cl_element("option", null, null, document.createTextNode(col_val))
-                select_el.appendChild(el)
-            }
-            select_el.firstChild.setAttribute("selected", "")
-        }else{
-            input_el.setAttribute("list",`${col_name}_dataList`)
-            
-        }
-        
-        
-    } else if (col_name in column_formatters["decimals"]) {
-        input_el.type = "number"
-    } else if (column_formatters["date"] && col_name in column_formatters["date"]) {
-        dt_picker = flatpickr(input_el, {dateFormat: "Y-m-d H:i:S",
-            allowInput:true
-        });
-        
-    }
-    else {
-        input_el.type = "text"
-    }
-    document.getElementById("modal-update-column").classList.remove("hidden")
+    let inputEl = document.getElementById("colValue");
+    inputEl.setAttribute('autocomplete', 'off');
+    inputEl.style.borderBottomRightRadius = 0;
+    inputEl.style.borderTopRightRadius = 0;
 
+    // Remove awesomplete wrapper if present
+    if (inputEl.parentNode.classList.contains("awesomplete")) {
+        const newInput = inputEl.cloneNode(true);
+        const parent = inputEl.parentNode.parentNode;
+        inputEl.parentNode.remove();
+        parent.insertBefore(newInput, parent.firstChild);
+        inputEl = newInput;
+    }
+
+    inputEl.value = "";
+    inputEl.classList.remove("datepicker-input");
+    inputEl.removeAttribute('list');
+    inputEl.type = "text";
+    inputEl.parentNode.style.display = "flex";
+    document.getElementById("colSelectValue").parentNode.style.display = "none";
+    document.getElementById("ColValueLabel").innerText = col_name;
+
+    if (dt_picker) {
+        dt_picker.destroy();
+        dt_picker = null;
+    }
+
+    if (col_name in column_formatters["autofiller"]) {
+        inputEl.setAttribute("list", `${col_name}_dataList`);
+        inputEl.parentNode.style.flex = 1;
+    } else if (col_name in column_formatters["lov"]) {
+        const selectEl = document.getElementById("colSelectValue");
+        inputEl.parentNode.style.display = "none";
+        selectEl.parentNode.style.display = "flex";
+        selectEl.innerHTML = "";
+        const lovVals = column_formatters["lov"][col_name];
+        if (Array.isArray(lovVals) && lovVals.length > 0) {
+            lovVals.forEach(val => {
+                selectEl.appendChild(get_cl_element("option", null, null, document.createTextNode(val)));
+            });
+            selectEl.firstChild.setAttribute("selected", "");
+        } else {
+            inputEl.setAttribute("list", `${col_name}_dataList`);
+        }
+    } else if (col_name in column_formatters["decimals"]) {
+        inputEl.type = "number";
+    } else if (column_formatters["date"] && col_name in column_formatters["date"]) {
+        inputEl.classList.add("datepicker-input");
+        dt_picker = flatpickr(inputEl, {
+            dateFormat: "Y-m-d H:i:S",
+            allowInput: true
+        });
+    }
+
+    document.getElementById("modal-update-column").classList.remove("hidden");
 }
 
-function get_dataList(col_name,optionsList){
-    let datalist = get_cl_element("datalist",null,col_name)
-    for (let option of optionsList){
-        let opt = get_cl_element("option")
-        opt.setAttribute("value",option)
-        datalist.appendChild(opt)
+function get_dataList(id, options) {
+    const datalist = document.createElement("datalist");
+    datalist.id = id;
+    for (const option of options) {
+        const opt = document.createElement("option");
+        opt.value = option;
+        datalist.appendChild(opt);
     }
-    return datalist
+    return datalist;
 }
 
 function restore_values(tr) {
-    tr.parentNode.replaceChild(get_table_row(initial_row_values), tr)
-    initial_row_values = []
-    current_row_id = 0
+    const newRow = get_table_row(initial_row_values);
+    tr.parentNode.replaceChild(newRow, tr);
+    initial_row_values = [];
+    current_row_id = 0;
 }
 
 function detect_changes(updated_row) {
-    if (JSON.stringify(updated_row) == JSON.stringify(initial_row_values)) {
-        return false
-    } else {
-        return true
-    }
+    return JSON.stringify(updated_row) !== JSON.stringify(initial_row_values);
 }
 
 function get_table_row(row, selected_idx, select_all = false, page_num = 1) {
-    let tr = get_cl_element("tr", "border-r hover:bg-gray-100 dark:hover:bg-gray-800");
+    const tr = get_cl_element("tr", "border-r hover:bg-gray-100");
     const tbl = table_el.querySelector("tbody");
 
-    for (const [idx, val] of row.entries()) {
-        if (primary_column && idx == 0) {
-            // ✅ Basecoat UI styled checkbox
-            let input_el = get_cl_element("input", "input");
-            input_el.setAttribute("type", "checkbox");
-
-            if (select_all) {
-                input_el.checked = true;
-            }
+    row.forEach((val, idx) => {
+        let td;
+        if (primary_column && idx === 0) {
+            const input_el = get_cl_element("input", "input");
+            input_el.type = "checkbox";
+            input_el.checked = !!select_all;
 
             if (page_num > 1) {
                 input_el.disabled = true;
@@ -1046,7 +1042,7 @@ function get_table_row(row, selected_idx, select_all = false, page_num = 1) {
                         select_el.checked = false;
                     } else if (this.checked && !select_el.checked) {
                         select_el.checked = true;
-                        for (let cn of tbl.querySelectorAll("input[type=checkbox]")) {
+                        for (const cn of tbl.querySelectorAll("input[type=checkbox]")) {
                             if (!cn.checked) {
                                 select_el.checked = false;
                                 break;
@@ -1056,43 +1052,28 @@ function get_table_row(row, selected_idx, select_all = false, page_num = 1) {
                 };
             }
 
-
-            tr.appendChild(
-                get_cl_element("td", "px-3 py-2 text-center border-r", val, input_el)
-            );
-
+            td = get_cl_element("td", "px-3 py-2 text-center border-r", val, input_el);
         } else {
-            let td;
             if (val === null) {
                 td = get_cl_element("td", "px-3 py-2 align-top border-r whitespace-normal");
-            } else {
-                if (col_names[idx] in column_formatters["decimals"]) {
-                    td = get_cl_element("td", "px-3 py-2 align-top text-right border-r whitespace-normal");
-                    if (isNaN(val)) {
-                        td.appendChild(document.createTextNode(val));
-                        td.style.backgroundColor = "red";
-                        td.setAttribute("title", "Expecting Numeric Value");
-                    } else {
-                        td.appendChild(
-                            document.createTextNode(get_col_string(col_names[idx], val))
-                        );
-                        td.setAttribute("title", val);
-                    }
+            } else if (col_names[idx] in column_formatters["decimals"]) {
+                td = get_cl_element("td", "px-3 py-2 align-top text-right border-r whitespace-normal");
+                if (isNaN(val)) {
+                    td.appendChild(document.createTextNode(val));
+                    td.style.backgroundColor = "red";
+                    td.setAttribute("title", "Expecting Numeric Value");
                 } else {
-                    td = get_cl_element(
-                        "td",
-                        "px-4 py-2 align-top border-r whitespace-normal",
-                        null,
-                        document.createTextNode(val)
-                    );
+                    td.appendChild(document.createTextNode(get_col_string(col_names[idx], val)));
                     td.setAttribute("title", val);
                 }
+            } else {
+                td = get_cl_element("td", "px-4 py-2 align-top border-r whitespace-normal", null, document.createTextNode(val));
+                td.setAttribute("title", val);
             }
 
-            // ✅ Inline editing handler
             td.ondblclick = function () {
                 if (editable_flag) {
-                    if (current_row_id == 0) {
+                    if (current_row_id === 0) {
                         open_row(this);
                     } else if (current_row_id !== this.parentNode.firstChild.id) {
                         if (detect_changes(get_row_array(document.getElementById(current_row_id).parentNode))) {
@@ -1104,620 +1085,559 @@ function get_table_row(row, selected_idx, select_all = false, page_num = 1) {
                     }
                 }
             };
-
-            tr.appendChild(td);
         }
-    }
+
+        tr.appendChild(td);
+    });
 
     if (selected_idx > 0 && selected_idx < row.length) {
-        tr.childNodes[selected_idx].classList.add("selected_col")
+        tr.childNodes[selected_idx].classList.add("selected_col");
     }
 
     return tr;
 }
 
 
-document.getElementById("formatColumn").onclick = function (e) {
-    const selected_header = table_el.querySelector('thead .selected_col')
-    if (selected_header) {
-        const decimalPlaces = document.getElementById("decimalPlaces")
-        const commaSeparator = document.getElementById("commaSeparator")
-        const localeString = document.getElementById("localeString")
-        const displayCurrency = document.getElementById("displayCurrency")
-        const aggregateFunction = document.getElementById("aggregateFunction")
-        const fieldType = document.getElementById("fieldType")
-        const lovInnerText = document.querySelector('#lovText');     
-        const col_name = selected_header.innerText
-        
-        if(!(col_name in column_formatters["decimals"])) {
-            lovText.style.display = ''
-        }else {
-            lovText.style.display = 'none'
-        }
-
-        decimalPlaces.parentElement.style.display = ''
-        commaSeparator.parentElement.style.display = ''
-        localeString.parentElement.style.display = ''
-        displayCurrency.parentElement.style.display = ''
-        aggregateFunction.parentElement.style.display = ''
-        fieldType.parentElement.style.display = 'none'
-        
-        const options = {
-            freetext: 'Free Text',
-            autofiller: 'Auto Filler',
-            date: 'Date',
-            datetime: 'Date Time',
-            lov: 'LOV',
-            numeric: 'Numeric'
-        };
-
-        fieldType.innerHTML = '';
-
-        if (col_name in column_formatters["decimals"] && !(col_name in column_formatters['date'])&& !(col_name in column_formatters['datetime'])) {
-            fieldType.add(new Option(options.numeric, 'numeric'));
-            fieldType.add(new Option(options.date, 'date'));
-            fieldType.add(new Option(options.datetime, 'datetime'));
-        } else {
-            for (let key in options) {
-                if (key !== 'numeric') {
-                    fieldType.add(new Option(options[key], key));
-                }
-            }
-        }
-
-        if(col_name in column_formatters['date'] || col_name in column_formatters['datetime']) {
-            fieldType.add(new Option('Numeric', 'numeric'));
-            fieldType.value = 'date'
-            if (col_name in column_formatters['datetime']){
-                fieldType.value = 'datetime'
-            }
-            lovText.style.display = 'none'
-        }else if (col_name in column_formatters["decimals"]) {
-            decimalPlaces.parentElement.style.display = ''
-            commaSeparator.parentElement.style.display = ''
-            localeString.parentElement.style.display = ''
-            displayCurrency.parentElement.style.display = ''
-            aggregateFunction.parentElement.style.display = ''
-            fieldType.value = 'numeric'            
-            
-            const n = column_formatters["decimals"][col_name]
-            const comma_flag = column_formatters["comma"][col_name]
-            const locale = column_formatters["locale"][col_name]
-            const currency = column_formatters["currency"][col_name]
-            const aggregate = column_formatters["aggregate"][col_name]
-            
-            decimalPlaces.value = n
-            commaSeparator.value = comma_flag
-            localeString.value = locale
-            displayCurrency.value = currency
-            aggregateFunction.value = aggregate
-        }
-        
-        else  {
-            let col_vals = []
-            if(col_name in column_formatters['lov']) {
-                fieldType.value = 'lov'
-                col_vals = column_formatters['lov'][col_name]
-
-            }else if(col_name in column_formatters['autofiller']) {
-                fieldType.value = 'autofiller'
-                col_vals = column_formatters['autofiller'][col_name]
-
-            } else if(col_name in column_formatters['date']) {
-                fieldType.value = 'date'
-                lovText.style.display = 'none'
-            }else {
-                fieldType.value = 'freetext'
-                lovText.style.display = 'none'
-            }
-
-            if(column_formatters['query'] && col_name in column_formatters['query']) {
-                lovText.value = column_formatters['query'][col_name]
-                lovText.style.display = ''
-            }else if(col_vals.length > 0) {
-                lovText.value = col_vals.join(';')
-                lovText.style.display = ''
-
-            } else {
-                lovText.value = ''
-            }
-        }
-        document.getElementById('modal-format-column').classList.remove('hidden')
-    } else {
-        confirmBox("Alert!", "Please select a column")
+document.getElementById("formatColumn").onclick = function () {
+    const selectedHeader = table_el.querySelector('thead .selected_col');
+    if (!selectedHeader) {
+        confirmBox("Alert!", "Please select a column");
+        return;
     }
 
-}
+    const decimalPlaces = document.getElementById("decimalPlaces");
+    const commaSeparator = document.getElementById("commaSeparator");
+    const localeString = document.getElementById("localeString");
+    const displayCurrency = document.getElementById("displayCurrency");
+    const aggregateFunction = document.getElementById("aggregateFunction");
+    const fieldType = document.getElementById("fieldType");
+    const lovText = document.getElementById("lovText");
+    const colName = selectedHeader.innerText;
 
-const fieldType = document.querySelector('#fieldType');
-const lovInnerText = document.querySelector('#lovText');
+    // Hide/show LOV input based on column type
+    lovText.style.display = !(colName in column_formatters["decimals"]) ? '' : 'none';
 
-fieldType.addEventListener('change',(e)=>{
-    decimalPlaces.parentElement.style.display = 'none'
-    commaSeparator.parentElement.style.display = 'none'
-    localeString.parentElement.style.display = 'none'
-    displayCurrency.parentElement.style.display = 'none'
-    aggregateFunction.parentElement.style.display = 'none'
-    if(e.target.value == 'date' || e.target.value == 'datetime' || e.target.value == 'freetext' || e.target.value == 'numeric') {
-        lovInnerText.style.display = 'none';
-        if (e.target.value == 'numeric'){
-            decimalPlaces.parentElement.style.display = ''
-            commaSeparator.parentElement.style.display = ''
-            localeString.parentElement.style.display = ''
-            displayCurrency.parentElement.style.display = ''
-            aggregateFunction.parentElement.style.display = ''
+    // Show all numeric formatting fields by default
+    decimalPlaces.parentElement.style.display = '';
+    commaSeparator.parentElement.style.display = '';
+    localeString.parentElement.style.display = '';
+    displayCurrency.parentElement.style.display = '';
+    aggregateFunction.parentElement.style.display = '';
+    fieldType.parentElement.style.display = 'none';
+
+    // Field type options
+    const options = {
+        freetext: 'Free Text',
+        autofiller: 'Auto Filler',
+        date: 'Date',
+        datetime: 'Date Time',
+        lov: 'LOV',
+        numeric: 'Numeric'
+    };
+
+    fieldType.innerHTML = '';
+
+    // Populate fieldType dropdown
+    if (colName in column_formatters["decimals"] && !(colName in column_formatters['date']) && !(colName in column_formatters['datetime'])) {
+        fieldType.add(new Option(options.numeric, 'numeric'));
+        fieldType.add(new Option(options.date, 'date'));
+        fieldType.add(new Option(options.datetime, 'datetime'));
+    } else {
+        for (const key in options) {
+            if (key !== 'numeric') {
+                fieldType.add(new Option(options[key], key));
+            }
         }
-    }else {
+    }
+
+    // Set fieldType and formatting values
+    if (colName in column_formatters['date'] || colName in column_formatters['datetime']) {
+        fieldType.add(new Option('Numeric', 'numeric'));
+        fieldType.value = colName in column_formatters['datetime'] ? 'datetime' : 'date';
+        lovText.style.display = 'none';
+    } else if (colName in column_formatters["decimals"]) {
+        fieldType.value = 'numeric';
+        decimalPlaces.value = column_formatters["decimals"][colName];
+        commaSeparator.value = column_formatters["comma"][colName];
+        localeString.value = column_formatters["locale"][colName];
+        displayCurrency.value = column_formatters["currency"][colName];
+        aggregateFunction.value = column_formatters["aggregate"][colName];
+    } else {
+        let colVals = [];
+        if (colName in column_formatters['lov']) {
+            fieldType.value = 'lov';
+            colVals = column_formatters['lov'][colName];
+        } else if (colName in column_formatters['autofiller']) {
+            fieldType.value = 'autofiller';
+            colVals = column_formatters['autofiller'][colName];
+        } else if (colName in column_formatters['date']) {
+            fieldType.value = 'date';
+            lovText.style.display = 'none';
+        } else {
+            fieldType.value = 'freetext';
+            lovText.style.display = 'none';
+        }
+
+        if (column_formatters['query'] && colName in column_formatters['query']) {
+            lovText.value = column_formatters['query'][colName];
+            lovText.style.display = '';
+        } else if (Array.isArray(colVals) && colVals.length > 0) {
+            lovText.value = colVals.join(';');
+            lovText.style.display = '';
+        } else {
+            lovText.value = '';
+        }
+    }
+
+    document.getElementById('modal-format-column').classList.remove('hidden');
+};
+
+const fieldType = document.getElementById('fieldType');
+const lovInnerText = document.getElementById('lovText');
+
+fieldType.addEventListener('change', function (e) {
+    // Hide all numeric formatting fields by default
+    decimalPlaces.parentElement.style.display = 'none';
+    commaSeparator.parentElement.style.display = 'none';
+    localeString.parentElement.style.display = 'none';
+    displayCurrency.parentElement.style.display = 'none';
+    aggregateFunction.parentElement.style.display = 'none';
+
+    const type = e.target.value;
+
+    if (type === 'numeric') {
+        lovInnerText.style.display = 'none';
+        decimalPlaces.parentElement.style.display = '';
+        commaSeparator.parentElement.style.display = '';
+        localeString.parentElement.style.display = '';
+        displayCurrency.parentElement.style.display = '';
+        aggregateFunction.parentElement.style.display = '';
+    } else if (type === 'date' || type === 'datetime' || type === 'freetext') {
+        lovInnerText.style.display = 'none';
+    } else {
         lovInnerText.style.display = '';
     }
-    
-})
+});
 
-document.getElementById("updateFormats").onclick = async function (e) {
-    const parameter_dict = new Object
-    const col_name = table_el.querySelector('thead .selected_col').innerText
-    const n = parseInt(document.getElementById("decimalPlaces").value)
-    const aggregate = document.getElementById("aggregateFunction").value
-    const comma_flag = parseInt(document.getElementById("commaSeparator").value)
-    const fieldType = document.getElementById('fieldType').value
-    const lovInnerText = document.getElementById('lovText')
-    let locale = document.getElementById("localeString").value
-    let currency = document.getElementById("displayCurrency").value
+document.getElementById("updateFormats").onclick = async function () {
+    const col_name = table_el.querySelector('thead .selected_col').innerText;
+    const n = parseInt(document.getElementById("decimalPlaces").value, 10);
+    const aggregate = document.getElementById("aggregateFunction").value;
+    const comma_flag = parseInt(document.getElementById("commaSeparator").value, 10);
+    const fieldType = document.getElementById('fieldType').value;
+    const lovInnerText = document.getElementById('lovText').value;
+    let locale = document.getElementById("localeString").value;
+    let currency = document.getElementById("displayCurrency").value;
+    const parameter_dict = {};
 
-    if (currency == "0") {
-        currency = 0
+    if (currency === "0") currency = 0;
+    if (locale === "0") locale = 0;
+
+    // Handle date/datetime
+    if (fieldType === 'date' || fieldType === 'datetime') {
+        ["decimals", "comma", "locale", "currency", "aggregate"].forEach(key => {
+            if (col_name in column_formatters[key]) delete column_formatters[key][col_name];
+        });
+        parameter_dict["LOV"] = fieldType.charAt(0).toUpperCase() + fieldType.slice(1);
+        ["lov", "autofiller", "query"].forEach(key => {
+            if (col_name in column_formatters[key]) delete column_formatters[key][col_name];
+        });
+        if (col_name in column_formatters['date'] && fieldType !== 'date') delete column_formatters['date'][col_name];
+        if (col_name in column_formatters['datetime'] && fieldType !== 'datetime') delete column_formatters['datetime'][col_name];
+        column_formatters[fieldType][col_name] = 1;
     }
-
-    if (locale == "0") {
-        locale = 0
+    // Handle autofiller
+    else if (fieldType === 'autofiller') {
+        if (lovInnerText) {
+            parameter_dict["LOV"] = `Autofiller | ${lovInnerText}`;
+            if (col_name in column_formatters['lov']) delete column_formatters['lov'][col_name];
+            column_formatters['query'][col_name] = lovInnerText;
+            let dl = document.getElementById(`${col_name}_dataList`);
+            if (lovInnerText.trim().toLowerCase().startsWith("select")) {
+                const result = await gm.runSelectQuery(modelName, lovInnerText);
+                column_formatters["autofiller"][col_name] = result;
+                if (dl) dl.remove();
+                document.getElementById("dataList_div").appendChild(get_dataList(`${col_name}_dataList`, result));
+            } else {
+                const lov_list2 = lovInnerText.split(";").map(v => v.trim()).filter(Boolean);
+                column_formatters["autofiller"][col_name] = lov_list2;
+                if (dl) dl.remove();
+                document.getElementById("dataList_div").appendChild(get_dataList(`${col_name}_dataList`, lov_list2));
+            }
+        }
     }
-
-    if (fieldType == 'date' || fieldType == 'datetime') {
-        if (col_name in column_formatters["decimals"]) {
-            delete column_formatters["decimals"][col_name]
-            delete column_formatters["comma"][col_name]
-            delete column_formatters["locale"][col_name]
-            delete column_formatters["currency"][col_name]
-            delete column_formatters["aggregate"][col_name]
-        }
-        parameter_dict["LOV"] = fieldType[0].toUpperCase() + fieldType.slice(1)
-        if (col_name in column_formatters['lov']) {
-            delete column_formatters['lov'][col_name]
-        }
-        if (col_name in column_formatters['autofiller']) {
-            delete column_formatters['autofiller'][col_name]
-        }
-        if (col_name in column_formatters['query']) {
-            delete column_formatters['query'][col_name]
-        }
-        if (col_name in column_formatters['date'] && fieldType != 'date') {
-            delete column_formatters['date'][col_name]
-        }else if (col_name in column_formatters['datetime'] && fieldType != 'date') {
-            delete column_formatters['datetime'][col_name]
-        }
-        column_formatters[fieldType][col_name] = 1
-
-    } else if (fieldType == 'autofiller') {
-        if (lovInnerText !== '') {
-            parameter_dict["LOV"] = `Autofiller | ${lovInnerText}`
-            if (col_name in column_formatters['lov']) {
-                delete column_formatters['lov'][col_name]
-            }
-
-            column_formatters['query'][col_name] = lovInnerText
-
-            if (lovInnerText.trim().toLowerCase().substring(0, 6) == "select") {
-               
-                const result = await gm.runSelectQuery(modelName,lovInnerText)
-                column_formatters["autofiller"][col_name] = result
-                let dl = document.getElementById(`${col_name}_dataList`)
-                if (dl) {
-                    dl.remove()
-                }
-                document.getElementById("dataList_div").appendChild(get_dataList(`${col_name}_dataList`, result))
-
+    // Handle LOV
+    else if (fieldType === 'lov') {
+        if (lovInnerText) {
+            parameter_dict["LOV"] = `Select | ${lovInnerText}`;
+            if (col_name in column_formatters['lov']) delete column_formatters['lov'][col_name];
+            if (lovInnerText.trim().toLowerCase().startsWith("select")) {
+                column_formatters["query"][col_name] = lovInnerText;
+                const result = await gm.runSelectQuery(modelName, lovInnerText);
+                column_formatters["lov"][col_name] = result;
             } else {
-                let lov_list2 = []
-                for (let lov_mem of lovInnerText.trim().split(";")) {
-                    if (lov_mem.trim().length > 0) {
-                        lov_list2.push(lov_mem.trim())
-                    }
-                }
-                column_formatters["autofiller"][col_name] = lov_list2
-                let dl = document.getElementById(`${col_name}_dataList`)
-                if (dl) {
-                    dl.remove()
-                }
-                document.getElementById("dataList_div").appendChild(get_dataList(`${col_name}_dataList`, lov_list2))
+                const lov_list2 = lovInnerText.split(";").map(v => v.trim()).filter(Boolean);
+                column_formatters["lov"][col_name] = lov_list2;
             }
         }
-    }else if (fieldType == 'lov') {
-        if (lovInnerText !== '') {
-            parameter_dict["LOV"] = `Select | ${lovInnerText}`
-            if (col_name in column_formatters['lov']) {
-                delete column_formatters['lov'][col_name]
-            }
-            if (lovInnerText.trim().toLowerCase().substring(0, 6) == "select") {
-                column_formatters["query"][col_name] = lovInnerText
-                
-                const result = await gm.runSelectQuery(modelName,lovInnerText)
-                column_formatters["lov"][col_name] = result
-            } else {
-                let lov_list2 = []
-                for (let lov_mem of lovInnerText.trim().split(";")) {
-                    if (lov_mem.trim().length > 0) {
-                        lov_list2.push(lov_mem.trim())
-                    }
-                }
-                delete column_formatters['lov'][col_name]
-                column_formatters["lov"][col_name] = lov_list2
-            }
-        }
-    } else if (fieldType == 'freetext') {
-        parameter_dict["LOV"] = 'Freetext'
-        if (col_name in column_formatters['lov']) {
-            delete column_formatters['lov'][col_name]
-        }
-        if (col_name in column_formatters['autofiller']) {
-            delete column_formatters['autofiller'][col_name]
-        }
-        if (col_name in column_formatters['date']) {
-            delete column_formatters['date'][col_name]
-        }
-        if (col_name in column_formatters['datetime']) {
-            delete column_formatters['datetime'][col_name]
-        }
-        if (col_name in column_formatters['query']) {
-            delete column_formatters['query'][col_name]
-        }
-    }else {
-        if (col_name_types[col_name] == 'NUMERIC') {
-            if (col_name in column_formatters['lov']) {
-                delete column_formatters['lov'][col_name]
-            }
-            if (col_name in column_formatters['autofiller']) {
-                delete column_formatters['autofiller'][col_name]
-            }
-            if (col_name in column_formatters['date']) {
-                delete column_formatters['date'][col_name]
-            }
-            if (col_name in column_formatters['datetime']) {
-                delete column_formatters['datetime'][col_name]
-            }
-            if (col_name in column_formatters['query']) {
-                delete column_formatters['query'][col_name]
-            }
-            
-            parameter_dict["Decimals"] = n
-            parameter_dict["Comma"] = comma_flag
-            parameter_dict["Locale"] = locale
-            parameter_dict["Currency"] = currency
-            parameter_dict["Aggregate"] = aggregate
-
-            column_formatters["decimals"][col_name] = n
-            column_formatters["comma"][col_name] = comma_flag
-            column_formatters["locale"][col_name] = locale
-            column_formatters["currency"][col_name] = currency
-            column_formatters["aggregate"][col_name] = aggregate
+    }
+    // Handle freetext
+    else if (fieldType === 'freetext') {
+        parameter_dict["LOV"] = 'Freetext';
+        ["lov", "autofiller", "date", "datetime", "query"].forEach(key => {
+            if (col_name in column_formatters[key]) delete column_formatters[key][col_name];
+        });
+    }
+    // Handle numeric
+    else {
+        if (col_name_types[col_name] === 'NUMERIC') {
+            ["lov", "autofiller", "date", "datetime", "query"].forEach(key => {
+                if (col_name in column_formatters[key]) delete column_formatters[key][col_name];
+            });
+            parameter_dict["Decimals"] = n;
+            parameter_dict["Comma"] = comma_flag;
+            parameter_dict["Locale"] = locale;
+            parameter_dict["Currency"] = currency;
+            parameter_dict["Aggregate"] = aggregate;
+            column_formatters["decimals"][col_name] = n;
+            column_formatters["comma"][col_name] = comma_flag;
+            column_formatters["locale"][col_name] = locale;
+            column_formatters["currency"][col_name] = currency;
+            column_formatters["aggregate"][col_name] = aggregate;
         } else {
-            confirmBox('Alert', "You can't convert text column to Numeric.")
-            return
-        }
-    } 
-    document.getElementById('modal-format-column').classList.add('hidden')
-    
-    await gm.setTableFormatter(modelName,tableName,col_name,parameter_dict)
-
-    for (let cn of table_el.querySelectorAll("td.selected_col")) {
-        if (cn.firstChild && cn.firstChild.tagName !== "INPUT") {
-            if(col_name in column_formatters["decimals"]) {
-                let val = parseFloat(cn.getAttribute("title"))
-                cn.innerText = get_col_string(col_name, val)
-            }else {
-                let val = cn.getAttribute("title")
-                cn.innerText = val
-            }
+            confirmBox('Alert', "You can't convert text column to Numeric.");
+            return;
         }
     }
-}
+
+    document.getElementById('modal-format-column').classList.add('hidden');
+    await gm.setTableFormatter(modelName, tableName, col_name, parameter_dict);
+
+    table_el.querySelectorAll("td.selected_col").forEach(cn => {
+        if (cn.firstChild && cn.firstChild.tagName !== "INPUT") {
+            if (col_name in column_formatters["decimals"]) {
+                const val = parseFloat(cn.getAttribute("title"));
+                cn.innerText = get_col_string(col_name, val);
+            } else {
+                cn.innerText = cn.getAttribute("title");
+            }
+        }
+    });
+};
 
 function get_col_string(col_name, col_val) {
-   
-    if (col_val === undefined || col_val === null) {
-        return ""
-    }
-    const n = column_formatters["decimals"][col_name]
-    const locale_obj = { maximumFractionDigits: n, 
-                            minimumFractionDigits: n,
-                            useGrouping: false }
-    let currency = column_formatters["currency"][col_name]
-    const comma_flag = column_formatters["comma"][col_name]
-    const locale = column_formatters["locale"][col_name]
+    if (col_val == null || col_val === undefined) return "";
+
+    const decimals = column_formatters["decimals"][col_name];
+    const currency = column_formatters["currency"][col_name];
+    const comma = column_formatters["comma"][col_name];
+    const locale = column_formatters["locale"][col_name];
+
+    const options = {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+        useGrouping: !!comma
+    };
+
     if (currency) {
-        locale_obj["style"] = "currency"
-        locale_obj["currency"] = currency
+        options.style = "currency";
+        options.currency = currency;
     }
-    if (comma_flag) {
-        locale_obj["useGrouping"] = true
-    } 
 
-    return col_val.toLocaleString(locale, locale_obj)
-
+    return Number(col_val).toLocaleString(locale, options);
 }
 
 function get_row_array(tr) {
-    let updated_row = []
-    let header_row = table_el.querySelector("tr.headers").childNodes
-    for (const [idx, cn] of tr.childNodes.entries()) {
-        if (idx == 0) {
-            updated_row.push(cn.id)
-        } else {
-            let col_val = cn.firstChild.value
-            if (cn.firstChild.classList.contains("awesomplete")){
-                col_val = cn.firstChild.firstChild.value
-            }
+    const updated_row = [];
+    const header_row = table_el.querySelector("tr.headers").childNodes;
 
-            if (col_names[idx] in column_formatters["decimals"] && isNaN(col_val)) {
-                confirmBox("Alert!", `Please enter numeric value in ${col_names[idx]} Column`)
-                return
-            } else if (col_val.trim() == "" && header_row[idx].querySelector("u")) {
-                confirmBox("Alert!", `Please enter not null value in ${col_names[idx]} Column`)
-                return
-            }else if (column_formatters["date"] && col_names[idx] in column_formatters["date"]){
-                let new_val = col_val.split(' ')
-                if (new_val[1] === '00:00:00'){
-                    col_val = new_val[0]
-                }
-            }
-            if (col_val.trim() == "") {
-                col_val = null
-            } else if (col_val.trim() == "null" && col_names[idx] in column_formatters["lov"]){
-                col_val = null
-            } else if (col_names[idx] in column_formatters["decimals"]) {
-                col_val = parseFloat(col_val)
-            }
-
-            updated_row.push(col_val)
+    tr.childNodes.forEach((cn, idx) => {
+        if (idx === 0) {
+            updated_row.push(cn.id);
+            return;
         }
-    }
-    
-    return updated_row
-}
 
-document.getElementById("ok-query").onclick =async function(){
-    const view_query = document.getElementById("queryInput").value
-    if (view_query.trim()==""){
-        confirmBox("Alert!","Please enter a query")
-    }
-
-    await fetchData('home','checkOrCreateView',{view_name:tableName,view_query:view_query,model_name:modelName,isExist:true})
-    document.getElementById("queryInput").value = view_query
-    document.getElementById('modal-get-viewQuery').classList.add('hidden')
-    init()
-    confirmBox("Success","View updated successfully")
-}
-
-function hide_sidebar(){    
-    if(document.getElementById("sidebarDiv").style.width != "600px"){
-        document.getElementById("sidebarDiv").style.width = "600px";
-        document.getElementById("sidebarBtn").style.marginRight = "599px";
-        document.getElementById("mainDiv").style.marginRight = "589px";
-        set_editor_value(view_query);
-    }else{        
-        document.getElementById("sidebarDiv").style.width = "0";
-        document.getElementById("sidebarBtn").style.marginRight = "0";
-        document.getElementById("mainDiv").style.marginRight = "-12px";
-    }    
-}
-
-async function run_editor_query(){    
-    let query = editor.getValue()
-    if(document.getElementById("editorDiv").style.display =="none"){
-        query = get_query_text()
-    }
-    if (query.trim()==""){
-        confirmBox("Alert!","Please write a query")
-    }
-    
-    const data = await gm.runEditorQuery(tableName,query,modelName)
-    
-    let text_el = document.getElementById("solutionMsg")
-    view_query = query
-    
-    if (data.indexOf('SQLError')>-1){
-        text_el.style.color = "red"    
-    }else{
-        text_el.style.color = ""
-        document.getElementById("data-loader").style.display = ""
-        init()            
-    }        
-    text_el.innerText = data
-}
-
-async function get_table_rows(){
-    const body_div = document.getElementById("logTable").querySelector('tbody')
-    body_div.innerHTML = ""
-
-    const data = await gm.fetchTableData(modelName,'T_QueryLogs',['LogTime','QuerySQL','QueryMsg'])
-
-    let rows_array = data[0].reverse()
-
-    for (let rw of rows_array){  
-        body_div.appendChild(get_log_row(rw))       
-    }
-}
-
-function get_log_row(row){
-    const body_div = document.getElementById("logTable").querySelector('tbody')
-    let tr = get_cl_element("tr")
-    for (let [idx,value] of row.entries()){        
-        if(value){
-            let td = get_cl_element("td",null,null,document.createTextNode(value))
-            if (idx==1){
-                tr.setAttribute("row_query",value)
-                tr.setAttribute("title",value)
-            }
-            tr.appendChild(td)
-        }else{
-            tr.appendChild(get_cl_element("td"))   
+        let col_val = cn.firstChild.value;
+        if (cn.firstChild.classList.contains("awesomplete")) {
+            col_val = cn.firstChild.firstChild.value;
         }
-    }
-    
-    tr.onclick = function(e){
-        for (let tr of body_div.querySelectorAll("tr")){
-            if (tr.classList.contains("selected")){
-                tr.classList.remove("selected")
+
+        const col_name = col_names[idx];
+
+        // Numeric validation
+        if (col_name in column_formatters["decimals"] && isNaN(col_val)) {
+            confirmBox("Alert!", `Please enter numeric value in ${col_name} Column`);
+            return;
+        }
+
+        // Not null validation
+        if (col_val.trim() === "" && header_row[idx].querySelector("u")) {
+            confirmBox("Alert!", `Please enter not null value in ${col_name} Column`);
+            return;
+        }
+
+        // Date formatting
+        if (column_formatters["date"] && col_name in column_formatters["date"]) {
+            const parts = col_val.split(' ');
+            if (parts[1] === '00:00:00') {
+                col_val = parts[0];
             }
         }
-        tr.classList.add("selected")
-    }
 
-    return tr
+        // Null handling
+        if (col_val.trim() === "") {
+            col_val = null;
+        } else if (col_val.trim() === "null" && col_name in column_formatters["lov"]) {
+            col_val = null;
+        } else if (col_name in column_formatters["decimals"]) {
+            col_val = parseFloat(col_val);
+        }
+
+        updated_row.push(col_val);
+    });
+
+    return updated_row;
 }
 
-document.getElementById('logButton').onclick = function(){
-    if (document.getElementById("editorDiv").style.display !="none"){
-        document.getElementById("editorDiv").style.display = "none"
-        document.getElementById("logtableDiv").style.display = ""
-        document.getElementById("copyBtn").style.display = ""
-    }else{
-        document.getElementById("editorDiv").style.display = ""
-        document.getElementById("logtableDiv").style.display = "none"
-        document.getElementById("copyBtn").style.display = "none"
-    }
-}
-
-function get_editor(){
-    if (document.getElementById("editorDiv").style.display =="none"){
-        document.getElementById("editorDiv").style.display = ""
-        document.getElementById("logtableDiv").style.display = "none"
-        document.getElementById("editor-button").disabled = false
-        document.getElementById("copyBtn").style.display = "none"
-    }
-}
-
-function set_editor_value(text){
-    editor.setValue(text)
-    setTimeout(function(){
-        editor.refresh();
-        editor.focus();
-    },200) ;
-}
-
-document.getElementById("copyBtn").onclick = function(){
-    let text = get_query_text()
-    navigator.clipboard.writeText(text); 
-    set_editor_value(text)
-    get_editor()  
-    
-}
-
-function get_query_text(){
-    const body_div = document.getElementById("logTable").querySelector('tbody')
-    const el = body_div.querySelector(".selected")
-    if(el){
-        return el.getAttribute('row_query')
-    }else{
-        confirmBox("Alert!","No row selected")
-    }
-}
-
-document.getElementById("copyTable").onclick = async function(){
-    document.getElementById("data-loader").style.display = ""
-    const data = await gm.fetchTableData(modelName,tableName,col_names,{},{},{},1,[],false)
-    document.getElementById("data-loader").style.display = "none"
-    if (data[1] > 100000){
-        confirmBox("Alert!","Sorry! , Data exceeded maximum Limit")
-        return
-    }
-    copyArrayToClipboard(data[0])
-}
-
-function copyTextToClipboard(text) {
-    if (!navigator.clipboard) {
-        console.log("no navigator available")
+document.getElementById("ok-query").onclick = async () => {
+    const queryInput = document.getElementById("queryInput");
+    const viewQuery = queryInput.value.trim();
+    if (!viewQuery) {
+        confirmBox("Alert!", "Please enter a query");
         return;
     }
-   
-    navigator.clipboard.writeText(text).then(function() {
-        document.getElementById("data-loader").style.display = "none"
-        confirmBox('Success','Copied to clipboard')
-    }, function(err) {
-        document.getElementById("data-loader").style.display = "none"
-        confirmBox('Alert!',`Error occured : ${err}`)
+
+    await fetchData('home', 'checkOrCreateView', {
+        view_name: tableName,
+        view_query: viewQuery,
+        model_name: modelName,
+        isExist: true
+    });
+
+    queryInput.value = viewQuery;
+    document.getElementById('modal-get-viewQuery').classList.add('hidden');
+    await init();
+    confirmBox("Success", "View updated successfully");
+};
+
+function hide_sidebar() {
+    const sidebarDiv = document.getElementById("sidebarDiv");
+    const sidebarBtn = document.getElementById("sidebarBtn");
+    const mainDiv = document.getElementById("mainDiv");
+
+    if (sidebarDiv.style.width !== "600px") {
+        sidebarDiv.style.width = "600px";
+        sidebarBtn.style.marginRight = "599px";
+        mainDiv.style.marginRight = "589px";
+        set_editor_value(view_query);
+    } else {
+        sidebarDiv.style.width = "0";
+        sidebarBtn.style.marginRight = "0";
+        mainDiv.style.marginRight = "-12px";
+    }
+}
+
+async function run_editor_query() {
+    let query = editor.getValue();
+    if (document.getElementById("editorDiv").style.display === "none") {
+        query = get_query_text();
+    }
+    if (!query.trim()) {
+        confirmBox("Alert!", "Please write a query");
+        return;
+    }
+
+    const result = await gm.runEditorQuery(tableName, query, modelName);
+    const msgEl = document.getElementById("solutionMsg");
+    view_query = query;
+
+    if (result.includes('SQLError')) {
+        msgEl.style.color = "red";
+    } else {
+        msgEl.style.color = "";
+        document.getElementById("data-loader").style.display = "";
+        await init();
+    }
+    msgEl.innerText = result;
+}
+
+async function get_table_rows() {
+    const bodyDiv = document.getElementById("logTable").querySelector('tbody');
+    bodyDiv.innerHTML = "";
+
+    const [rows] = await gm.fetchTableData(modelName, 'T_QueryLogs', ['LogTime', 'QuerySQL', 'QueryMsg']);
+    rows.slice().reverse().forEach(row => {
+        bodyDiv.appendChild(get_log_row(row));
     });
 }
 
-function copyArrayToClipboard(array) {
-    var csv = '', row, cell;
-    for (row = 0; row < array.length; row++) {
-      for (cell = 0; cell < array[row].length; cell++) {
-        csv += (array[row][cell]+'').replace(/[\n\t]+/g, ' ');
-        if (cell+1 < array[row].length) csv += '\t';
-      }
-      if (row+1 < array.length) csv += '\n';
+function get_log_row(row) {
+    const bodyDiv = document.getElementById("logTable").querySelector('tbody');
+    const tr = get_cl_element("tr");
+    row.forEach((value, idx) => {
+        const td = value ? get_cl_element("td", null, null, document.createTextNode(value)) : get_cl_element("td");
+        if (idx === 1 && value) {
+            tr.setAttribute("row_query", value);
+            tr.setAttribute("title", value);
+        }
+        tr.appendChild(td);
+    });
+
+    tr.onclick = () => {
+        bodyDiv.querySelectorAll("tr.selected").forEach(selectedTr => selectedTr.classList.remove("selected"));
+        tr.classList.add("selected");
+    };
+
+    return tr;
+}
+
+document.getElementById('logButton').onclick = function () {
+    const editorDiv = document.getElementById("editorDiv");
+    const logtableDiv = document.getElementById("logtableDiv");
+    const copyBtn = document.getElementById("copyBtn");
+    if (editorDiv.style.display !== "none") {
+        editorDiv.style.display = "none";
+        logtableDiv.style.display = "";
+        copyBtn.style.display = "";
+    } else {
+        editorDiv.style.display = "";
+        logtableDiv.style.display = "none";
+        copyBtn.style.display = "none";
     }
+};
+
+function get_editor() {
+    const editorDiv = document.getElementById("editorDiv");
+    const logtableDiv = document.getElementById("logtableDiv");
+    const editorButton = document.getElementById("editor-button");
+    const copyBtn = document.getElementById("copyBtn");
+    if (editorDiv.style.display === "none") {
+        editorDiv.style.display = "";
+        logtableDiv.style.display = "none";
+        editorButton.disabled = false;
+        copyBtn.style.display = "none";
+    }
+}
+
+function set_editor_value(text) {
+    editor.setValue(text);
+    setTimeout(() => {
+        editor.refresh();
+        editor.focus();
+    }, 200);
+}
+
+document.getElementById("copyBtn").onclick = () => {
+    const text = get_query_text();
+    if (text) {
+        navigator.clipboard.writeText(text);
+        set_editor_value(text);
+        get_editor();
+    }
+};
+
+function get_query_text() {
+    const tbody = document.getElementById("logTable").querySelector('tbody');
+    const selectedRow = tbody.querySelector(".selected");
+    if (selectedRow) {
+        return selectedRow.getAttribute('row_query');
+    } else {
+        confirmBox("Alert!", "No row selected");
+        return "";
+    }
+}
+
+document.getElementById("copyTable").onclick = async () => {
+    document.getElementById("data-loader").style.display = "";
+    const data = await gm.fetchTableData(modelName, tableName, col_names, {}, {}, {}, 1, [], false);
+    document.getElementById("data-loader").style.display = "none";
+    if (data[1] > 100000) {
+        confirmBox("Alert!", "Sorry! , Data exceeded maximum Limit");
+        return;
+    }
+    copyArrayToClipboard(data[0]);
+};
+
+function copyTextToClipboard(text) {
+    if (!navigator.clipboard) {
+        console.log("Clipboard API not available");
+        return;
+    }
+    navigator.clipboard.writeText(text)
+        .then(() => {
+            document.getElementById("data-loader").style.display = "none";
+            confirmBox('Success', 'Copied to clipboard');
+        })
+        .catch(err => {
+            document.getElementById("data-loader").style.display = "none";
+            confirmBox('Alert!', `Error occurred: ${err}`);
+        });
+}
+
+function copyArrayToClipboard(array) {
+    const csv = array.map(row =>
+        row.map(cell => (cell + '').replace(/[\n\t]+/g, ' ')).join('\t')
+    ).join('\n');
     copyTextToClipboard(csv);
 }
 
 function add_insert_row() {
-    let tr = get_cl_element("tr", "insert")
-    let input_el
-    for (const [idx, col_name] of col_names.entries()) {
-        let autofill_flag = false
-        let td = document.createElement("td")
-        tr.appendChild(td)
-        if (idx == 0) {
-            td.id = 0
+    const tr = get_cl_element("tr", "insert");
+    for (let idx = 0; idx < col_names.length; idx++) {
+        const col_name = col_names[idx];
+        let td = document.createElement("td");
+        tr.appendChild(td);
+
+        if (idx === 0) {
+            td.id = 0;
+            continue;
         }
-        else if (idx > 0) {
-            if (col_name in column_formatters["lov"] && column_formatters["lov"][col_name].toLowerCase() != 'freetext') {
-                input_el = get_cl_element("select", "select p-1", null)
-                for (let opt_val of column_formatters["lov"][col_name]) {
-                    let el = get_cl_element("option", null, null, document.createTextNode(opt_val))
-                    input_el.appendChild(el)
-                }
 
-            } else if (col_name in column_formatters["autofiller"]) {
-                input_el = get_cl_element("input", "input p-1", null)
-                autofill_flag = true
-            } else if (col_name in column_formatters["decimals"]) {
-                input_el = get_cl_element("input", "input p-1", null)
-                input_el.type = "number"
-            } else if (column_formatters["date"] && col_name in column_formatters["date"]) {
-                input_el = get_cl_element("input", "input datepicker-input p-1", null)
-                dt_picker = flatpickr(input_el, {
-                    dateFormat: "Y-m-d H:i:S",
-                    allowInput: true
-                });
-                input_el.type = "text"
-            }
-            else {
-                input_el = get_cl_element("input", "input p-1", null)
-                input_el.type = "text"
-            }
-            input_el.addEventListener("keydown", function (e) {
-                if (e.keyCode == "27") {
-                    for (let cn of this.parentNode.parentNode.childNodes) {
-                        let inp_el = cn.firstChild
-                        if (inp_el) {
-                            if (inp_el.classList.contains("form-ctrl")) {
-                                inp_el.value = ""
-                            }
-                        }
+        let input_el;
+        let autofill_flag = false;
+
+        if (col_name in column_formatters["lov"] && column_formatters["lov"][col_name].toLowerCase() !== 'freetext') {
+            input_el = get_cl_element("select", "select p-1", null);
+            column_formatters["lov"][col_name].forEach(opt_val => {
+                input_el.appendChild(get_cl_element("option", null, null, document.createTextNode(opt_val)));
+            });
+        } else if (col_name in column_formatters["autofiller"]) {
+            input_el = get_cl_element("input", "input p-1", null);
+            autofill_flag = true;
+        } else if (col_name in column_formatters["decimals"]) {
+            input_el = get_cl_element("input", "input p-1", null);
+            input_el.type = "number";
+        } else if (column_formatters["date"] && col_name in column_formatters["date"]) {
+            input_el = get_cl_element("input", "input datepicker-input p-1", null);
+            dt_picker = flatpickr(input_el, {
+                dateFormat: "Y-m-d H:i:S",
+                allowInput: true
+            });
+            input_el.type = "text";
+        } else {
+            input_el = get_cl_element("input", "input p-1", null);
+            input_el.type = "text";
+        }
+
+        input_el.addEventListener("keydown", function (e) {
+            if (e.keyCode === 27) {
+                Array.from(this.parentNode.parentNode.childNodes).forEach(cn => {
+                    const inp_el = cn.firstChild;
+                    if (inp_el && inp_el.classList.contains("form-ctrl")) {
+                        inp_el.value = "";
                     }
-                }
-                else if (e.keyCode == "13") {
-                    insert_row(this.parentNode.parentNode)
-                    e.preventDefault()
-                }
-            })
-            td.appendChild(input_el)
-            if (autofill_flag) {
-                input_el.setAttribute("list", `${col_name}_dataList`)
-
+                });
+            } else if (e.keyCode === 13) {
+                insert_row(this.parentNode.parentNode);
+                e.preventDefault();
             }
+        });
+
+        td.appendChild(input_el);
+
+        if (autofill_flag) {
+            input_el.setAttribute("list", `${col_name}_dataList`);
         }
     }
-    return tr
+    return tr;
 }
