@@ -7,6 +7,8 @@ let excelUploadInfo = {}
 let selectedFile = null
 let imgBlob = null
 const current_version = "1.0.0"
+const params = new URLSearchParams(window.location.search)
+const modelUID = params.get('modelUID');
 let schema = {}
 const icons_class = {'DB_Icon': 'fas fa-database'}
 let tsk_id
@@ -21,6 +23,13 @@ document.addEventListener("DOMContentLoaded", async function() {
     if (!result || result.msg != 'Success'){
         confirmBox('Alert!','Some error occured while initializing sqlite.')
         return
+    }
+    
+
+    if (modelUID){
+        await postData('/home/get-attached-model',{modelId:`${modelUID}`})
+        const url = window.location.origin + window.location.pathname;
+        history.replaceState(null, '', url);        
     }
 
     await get_user_models();
@@ -436,7 +445,7 @@ function populate_tables(model_names) {
         model_body.appendChild(get_li_element(model));
     });
 
-    if (model_body.lastChild) {
+    if (modelUID && model_body.lastChild) {
         model_body.lastChild.click();
     } else if (model_body.firstChild) {
         model_body.firstChild.click();

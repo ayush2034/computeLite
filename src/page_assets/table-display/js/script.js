@@ -117,7 +117,7 @@ async function get_table_headers(header_rows) {
         // Dropdown menu for filter
         const dropdown_menu = get_cl_element("div", "dropdown-menu flex");
         const input_tag = get_cl_element("input",
-            "form-ctrl flex-1 px-2 py-1 text-sm rounded-l-md border border-gray-300 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-400/50 focus:shadow-md");
+            "form-ctrl flex-1 px-2 py-1 text-sm rounded-l-md border border-gray-300 focus:outline-none focus:border-gray-400 focus:ring-3 focus:ring-gray-400/50");
         input_tag.type = "text";
         dropdown_menu.appendChild(input_tag);
 
@@ -168,7 +168,7 @@ async function get_table_headers(header_rows) {
         dropdown.appendChild(role_menu);
         dropdown_menu.appendChild(dropdown);
 
-        const th2 = get_cl_element("th", null, null, dropdown_menu);
+        const th2 = get_cl_element("th", "py-2", null, dropdown_menu);
 
         // Toggle dropdown and fetch LOV values
         toggle_btn.addEventListener("click", async function () {

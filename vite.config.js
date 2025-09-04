@@ -18,11 +18,11 @@ export default defineConfig({
         editor: path.resolve(__dirname, 'src/editorPage.html'),
         sqlEditor: path.resolve(__dirname, 'src/sqlEditor.html'),
         home: path.resolve(__dirname, 'src/homePage.html'),
-        // policy: path.resolve(__dirname, 'src/privacyPolicy.html'),
+        policy: path.resolve(__dirname, 'src/privacyPolicy.html'),
         notebook: path.resolve(__dirname, 'src/PyNotebook.html'),
         notebookJS: path.resolve(__dirname, 'src/JsNotebook.html'),
         notebookR: path.resolve(__dirname, 'src/RNotebook.html'),
-        // queries: path.resolve(__dirname, 'src/Queries.html'),
+        queries: path.resolve(__dirname, 'src/Queries.html'),
       },
       output: {
         assetFileNames: 'assets/[name].[hash].[ext]',

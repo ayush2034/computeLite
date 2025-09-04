@@ -187,11 +187,11 @@ document.getElementById("hideCode").onclick = async function () {
       if (!runcells) {
         await runAllCell(container, modelName,selected_li_el.innerText);
         this.innerText = "Show Code"
-        document.getElementById("addCell").classList.add('hidden')
-        document.getElementById("addTopCell").classList.add('hidden')
+        document.getElementById("addCell").style.display = 'none'
+        document.getElementById("addTopCell").style.display = 'none'
       } else {
-        document.getElementById("addCell").classList.remove('hidden')
-        document.getElementById("addTopCell").classList.remove('hidden')
+        document.getElementById("addCell").style.display = ''
+        document.getElementById("addTopCell").style.display = ''
         this.innerText = "Hide Code"
         container.innerHTML = "";
         container.style = "width:80% !important"

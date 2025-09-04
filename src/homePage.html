@@ -60,7 +60,7 @@
                         <div class="ml-10 flex items-baseline space-x-2">
                             <!-- Model Dropdown -->
                             <div class="relative">
-                                <button class="btn-ghost" id="models-menu-button">
+                                <button class="btn-ghost" id="models-menu-button" aria-haspopup="true" aria-expanded="false">
                                     Models
                                     <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path d="M19 9l-7 7-7-7"></path>
@@ -79,8 +79,8 @@
                                             <li id="uploadExcel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Upload Excel</a></li>
                                             <li id="downloadExcel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Download Excel</a></li>
                                             <li id="vacuum"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Vacuum Model</a></li>
-                                            <li id="model-createView"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Create View</a>                                    
-                                            <li id="editorBtn"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">SQL Editor</a>
+                                            <li id="model-createView"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Create View</a></li>
+                                            <li id="editorBtn"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">SQL Editor</a></li>
                                             <li id="uploadPackage"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Upload Package</a></li>
                                         </ul>
                                     </div>
@@ -204,21 +204,19 @@
                 </div>
 
                 <!-- Mobile menu button -->
-                <div class="md:hidden">
+                <!-- <div class="md:hidden">
                     <button class="bg-card text-card-foreground inline-flex items-center justify-center p-2 rounded-md hover:bg-muted hover:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary" id="mobile-menu-button">
-                        <span class="sr-only">Open main menu</span>
                         <svg class="block h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
-                </div>
+                </div> -->
             </div>
         </div>
 
         <!-- Mobile menu -->
-        <div class="md:hidden hidden" id="mobile-menu">
+        <!-- <div class="md:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-border">
-                <!-- Mobile Dashboard Dropdown -->
                 <div class="space-y-1">
                     <button class="text-card-foreground hover:bg-muted hover:text-muted-foreground px-3 py-2 rounded-md text-base font-medium w-full text-left flex items-center justify-between" id="mobile-dashboard-button">
                         Dashboard
@@ -227,10 +225,23 @@
                         </svg>
                     </button>
                     <div class="hidden pl-4 space-y-1" id="mobile-dashboard-dropdown">
-                        <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-sm">Analytics</a>
-                        <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-sm">Overview</a>
-                        <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-sm">Performance</a>
-                        <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-sm">KPIs</a>
+                        <div class="py-1">
+                            <ul class="list-style-none">
+                                <li id="addNew"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Add New Model</a></li>
+                                <li id="addExisting"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Add Existing Model</a></li>
+                                <li id="removeModel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Hide Model</a></li>
+                                <li id="saveAs"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Save As</a></li>
+                                <li id="uploadModel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Restore Model</a></li>
+                                <li id="downloadModel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Backup Model</a></li>
+                                <li id="deleteModel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Delete Model</a></li>
+                                <li id="uploadExcel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Upload Excel</a></li>
+                                <li id="downloadExcel"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Download Excel</a></li>
+                                <li id="vacuum"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Vacuum Model</a></li>
+                                <li id="model-createView"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Create View</a></li>
+                                <li id="editorBtn"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">SQL Editor</a></li>
+                                <li id="uploadPackage"><a class="block px-4 py-2 text-sm text-card-foreground hover:bg-muted hover:text-muted-foreground transition-colors cursor-pointer">Upload Package</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-base font-medium">Inventory</a>
@@ -238,7 +249,7 @@
                 <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-base font-medium">Suppliers</a>
                 <a href="#" class="text-card-foreground hover:bg-muted hover:text-muted-foreground block px-3 py-2 rounded-md text-base font-medium">Reports</a>
             </div>
-        </div>
+        </div> -->
     </nav>
 
     <!-- Main Content -->

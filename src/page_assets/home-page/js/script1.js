@@ -1,8 +1,8 @@
 // Mobile menu toggle
-document.getElementById('mobile-menu-button').addEventListener('click', function() {
-    const mobileMenu = document.getElementById('mobile-menu');
-    mobileMenu.classList.toggle('hidden');
-});
+// document.getElementById('mobile-menu-button').addEventListener('click', function() {
+//     const mobileMenu = document.getElementById('mobile-menu');
+//     mobileMenu.classList.toggle('hidden');
+// });
 
 // Model dropdown toggle
 document.getElementById('models-menu-button').addEventListener('click', function() {
@@ -29,10 +29,10 @@ document.getElementById('notebook-menu-button').addEventListener('click', functi
 });
 
 // Mobile Dashboard dropdown toggle
-document.getElementById('mobile-dashboard-button').addEventListener('click', function() {
-    const dropdown = document.getElementById('mobile-dashboard-dropdown');
-    dropdown.classList.toggle('hidden');
-});
+// document.getElementById('mobile-dashboard-button').addEventListener('click', function() {
+//     const dropdown = document.getElementById('mobile-dashboard-dropdown');
+//     dropdown.classList.toggle('hidden');
+// });
 
 // Close dropdowns when clicking outside
 document.addEventListener('click', function(event) {
@@ -44,8 +44,8 @@ document.addEventListener('click', function(event) {
     const runsDropdown = document.getElementById('runs-dropdown');
     const notebookButton = document.getElementById('notebook-menu-button');
     const notebookDropdown = document.getElementById('notebook-dropdown');
-    const mobileDashboardButton = document.getElementById('mobile-dashboard-button');
-    const mobileDashboardDropdown = document.getElementById('mobile-dashboard-dropdown');
+    // const mobileDashboardButton = document.getElementById('mobile-dashboard-button');
+    // const mobileDashboardDropdown = document.getElementById('mobile-dashboard-dropdown');
 
     // Close desktop dropdown if clicked outside
     if (!dashboardButton.contains(event.target) && !dashboardDropdown.contains(event.target)) {
@@ -68,7 +68,7 @@ document.addEventListener('click', function(event) {
     }
 
     // Close mobile dropdown if clicked outside
-    if (!mobileDashboardButton.contains(event.target) && !mobileDashboardDropdown.contains(event.target)) {
-        mobileDashboardDropdown.classList.add('hidden');
-    }
+    // if (!mobileDashboardButton.contains(event.target) && !mobileDashboardDropdown.contains(event.target)) {
+    //     mobileDashboardDropdown.classList.add('hidden');
+    // }
 });
