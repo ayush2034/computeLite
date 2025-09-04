@@ -44,13 +44,16 @@
                 <!-- Logo/Brand -->
                     <div class="flex items-center">
                         <div class="flex-shrink-0 flex items-center">
-                            <span class="inline-block bg-primary rounded-full p-2 shadow-sm mr-3">
+                            <!-- <span class="inline-block bg-primary rounded-full p-2 shadow-sm mr-3">
                                 <svg class="h-6 w-6 text-primary-foreground" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path d="M3 7v4a9 9 0 009 9 9 9 0 009-9V7"></path>
                                     <path d="M21 7c0-1.657-1.343-3-3-3H6C4.343 4 3 5.343 3 7"></path>
                                 </svg>
-                            </span>
-                            <h1 class="text-xl font-bold text-card-foreground">Compute Lite</h1>
+                            </span> -->
+                            <a href="./" class="flex items-center space-x-2">
+                                <img src="assets/img/favicon/summence_bw.png" alt="Compute Lite Logo" class="h-9">
+                                <h1 class="text-xl font-bold text-card-foreground">Compute Lite</h1>
+                            </a>
                         </div>
                     </div>
      
@@ -149,7 +152,7 @@
                     <div class="ml-4 flex items-center md:ml-6">
                         <div class="flex items-center space-x-3">
                             <!-- Query Sheet -->
-                            <a id="querySheet" title="Query Sheet" class="p-2.5 rounded-full bg-primary cursor-pointer">
+                            <a id="querySheet" title="Query Sheet" class="p-2.5 rounded-full bg-primary cursor-pointer hidden">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-5 h-5">
                                     <path fill="white" d="M0 448c0 35.3 28.7 64 64 64h160V384c0-17.7 14.3-32 32-32h128V64c0-35.3-28.7-64-64-64H64C28.7 0 0 28.7 0 64v384zM171.3 75.3l-96 96c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l96-96c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6zm96 32l-160 160c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l160-160c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6zM384 384H256v128l128-128z"/></svg>
                             </a>
@@ -161,30 +164,6 @@
                                     </g>
                                 </svg>
                             </a>
-
-                            <!-- JavaScript Notebook -->
-                            <!-- <a id="notebookJS" title="JavaScript Notebook" class="p-2.5 rounded-full bg-primary cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-5 h-5">
-                                    <path fill="white" d="M32 32v448h448V32Zm240 348c0 43.61-25.76 64.87-63.05 64.87c-33.68 0-53.23-17.44-63.15-38.49l34.28-20.75c6.61 11.73 11.63 21.65 26.06 21.65c12 0 21.86-5.41 21.86-26.46V240h44Zm99.35 63.87c-39.09 0-64.35-17.64-76.68-42L329 382c9 14.74 20.75 24.56 41.5 24.56c17.44 0 27.57-7.72 27.57-19.75c0-14.43-10.43-19.54-29.68-28l-10.52-4.52c-30.38-12.92-50.52-29.16-50.52-63.45c0-31.57 24.05-54.63 61.64-54.63c26.77 0 46 8.32 59.85 32.68L396 290c-7.22-12.93-15-18-27.06-18c-12.33 0-20.15 7.82-20.15 18c0 12.63 7.82 17.74 25.86 25.56l10.52 4.51c35.79 15.34 55.94 31 55.94 66.16c.01 37.9-29.76 57.64-69.76 57.64"/>
-                                </svg>
-                            </a> -->
-
-                            <!-- Python Notebook -->
-                            <!-- <a id="notebookBtn" title="Python Notebook" class="p-2.5 rounded-full bg-primary cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 32 32">
-                                    <path fill="white" d="M23.488 9.14v2.966a4.284 4.284 0 0 1-4.173 4.236h-6.672a3.41 3.41 0 0 0-3.34 3.394v6.36c0 1.81 1.574 2.876 3.34 3.395a11.2 11.2 0 0 0 6.672 0c1.682-.487 3.34-1.467 3.34-3.394V23.55h-6.672v-.849h10.012c1.941 0 2.665-1.354 3.34-3.386a11.46 11.46 0 0 0 0-6.79c-.48-1.932-1.396-3.386-3.34-3.386Zm-3.752 16.108a1.273 1.273 0 1 1-1.254 1.269a1.26 1.26 0 0 1 1.254-1.27"/>
-                                    <path fill="white" d="M15.835 2a19 19 0 0 0-3.192.273c-2.827.499-3.34 1.544-3.34 3.472V8.29h6.68v.849H6.796a4.17 4.17 0 0 0-4.173 3.387a12.5 12.5 0 0 0 0 6.789c.475 1.977 1.609 3.386 3.55 3.386H8.47V19.65a4.245 4.245 0 0 1 4.173-4.15h6.672a3.365 3.365 0 0 0 3.34-3.394V5.745a3.73 3.73 0 0 0-3.34-3.472A21 21 0 0 0 15.835 2m-3.612 2.048a1.273 1.273 0 1 1-1.254 1.277a1.27 1.27 0 0 1 1.254-1.277"/>
-                                </svg>
-                            </a> -->
-
-                           <!-- R Notebook -->
-                            <!-- <a id="notebookRBtn" title="R Notebook" class="p-2.5 rounded-full bg-primary flex items-center justify-center cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24">
-                                    <text x="12" y="14" font-size="24" fill="white" font-family="monospace"
-                                        text-anchor="middle" dominant-baseline="middle">R</text>
-                                </svg>
-                            </a> -->
-
 
                             <!-- Python Editor -->
                             <a id="shareBtn" title="Python Editor" class="p-2.5 rounded-full bg-primary cursor-pointer">
@@ -638,7 +617,7 @@
 
             <!-- Text -->
             <div class="flex justify-center items-center text-center">
-                <p class="text-sm font-normal mb-0">Compute Lite</p>
+                <p class="text-sm font-normal mb-0"><b>Compute Lite</b></p>
             </div>
             </div>
         </div>
